@@ -27,9 +27,7 @@ AItem::AItem()
 	SphereComponent->SetupAttachment(SceneComponent);
 
 	WidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("WidgetComponent"));
-	WidgetComponent->SetupAttachment(RootComponent);
 	WidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
-	WidgetComponent->SetRelativeLocation(FVector(0));
 	WidgetComponent->SetVisibility(false);
 }
 
@@ -83,8 +81,12 @@ void AItem::Init()
 			
 			if (WidgetComponent&&Data->ShowUI)
 			{
-				WidgetComponent->AttachToComponent(GetRootComponent(),FAttachmentTransformRules::KeepRelativeTransform);
-				WidgetComponent->SetRelativeLocation(FVector(0));
+				if (SphereComponent)
+				{
+					WidgetComponent->AttachToComponent(SphereComponent,FAttachmentTransformRules::KeepRelativeTransform);
+					WidgetComponent->SetRelativeLocation(FVector(0));
+				}
+				
 				ShowUI = CreateWidget<UUserWidget>(GetWorld(),Data->ShowUI);
 				if (ShowUI)
 				{

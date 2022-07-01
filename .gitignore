@@ -1,0 +1,12 @@
+.vs/
+.idea/
+
+/Pak
+/Saved
+/Intermediate
+/DerivedDataCache
+/Binaries
+
+Plugins/*/Binaries/*
+
+*.sln

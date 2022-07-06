@@ -5,6 +5,8 @@
 
 #include "Components/SphereComponent.h"
 #include "Components/WidgetComponent.h"
+#include "InteractiveSystemPlugins/Components/PacksackComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 AItem::AItem()
@@ -28,7 +30,13 @@ AItem::AItem()
 
 	WidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("WidgetComponent"));
 	WidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
+	WidgetComponent->SetDrawAtDesiredSize(true);
 	WidgetComponent->SetVisibility(false);
+	WidgetComponent->SetIsReplicated(false);
+
+	bReplicates = true;
+	SetReplicates(true);
+	SetReplicateMovement(true);
 }
 
 // Called when the game starts or when spawned
@@ -106,18 +114,118 @@ void AItem::Tick(float DeltaTime)
 }
 
 
-void AItem::Show()
+void AItem::Show(APawn* Pawn)
 {
-	if (WidgetComponent)
+	if (!Pawn||!Pawn->GetController()||!Pawn->GetController()->IsLocalController())return;
+	
+	if (IsValid(WidgetComponent))
 	{
 		WidgetComponent->SetVisibility(true);
 	}
+	
+	
 }
 
-void AItem::Hide()
+void AItem::Hide(APawn* Pawn)
 {
-	if (WidgetComponent)
+	if (!Pawn||!Pawn->GetController()||!Pawn->GetController()->IsLocalController())return;
+	
+	if (IsValid(WidgetComponent))
 	{
 		WidgetComponent->SetVisibility(false);
 	}
+	
+}
+
+void AItem::Pack_Implementation(AController* Controller)
+{
+	this->Destroy();
+	if (Controller)
+	{
+		if (CastChecked<UPacksackComponent>(Controller->GetPawn()->GetComponentByClass(UPacksackComponent::StaticClass())))
+		{
+			if (Data->bRepeat)
+			{
+				FName name = FName(Name);
+				/*for (FPackItmeStruct PackDataListItem : Component->PackDataList)
+				{
+					if (PackDataListItem.Name==name)
+					{
+						Component->PackDataList.RemoveAt(0);
+						Component->PackDataList.RemoveAt(Component->PackDataList.);
+						Component->PackDataList.Insert(FPackItmeStruct(PackDataListItem.ItemClass,PackDataListItem.Numbers++,PackDataListItem.Name),Component->PackDataList.Find(PackDataListItem));
+						return;
+					}
+				}*/
+
+				for (int i = 0;i<CastChecked<UPacksackComponent>(Controller->GetPawn()->GetComponentByClass(UPacksackComponent::StaticClass()))->PackDataList.Num();i++)
+				{
+					if (CastChecked<UPacksackComponent>(Controller->GetPawn()->GetComponentByClass(UPacksackComponent::StaticClass()))->PackDataList.IsValidIndex(i))
+					{
+						if (CastChecked<UPacksackComponent>(Controller->GetPawn()->GetComponentByClass(UPacksackComponent::StaticClass()))->PackDataList[i].Name == name)
+						{
+							CastChecked<UPacksackComponent>(Controller->GetPawn()->GetComponentByClass(UPacksackComponent::StaticClass()))->PackDataList.Insert(FPackItmeStruct(CastChecked<UPacksackComponent>(Controller->GetPawn()->GetComponentByClass(UPacksackComponent::StaticClass()))->PackDataList[i].ItemClass,CastChecked<UPacksackComponent>(Controller->GetPawn()->GetComponentByClass(UPacksackComponent::StaticClass()))->PackDataList[i].Numbers++,CastChecked<UPacksackComponent>(Controller->GetPawn()->GetComponentByClass(UPacksackComponent::StaticClass()))->PackDataList[i].Name),i);
+							CastChecked<UPacksackComponent>(Controller->GetPawn()->GetComponentByClass(UPacksackComponent::StaticClass()))->PackDataList.RemoveAt(i++);
+							if (CastChecked<UPacksackComponent>(Controller->GetPawn()->GetComponentByClass(UPacksackComponent::StaticClass()))->UpdatePackUI.IsBound())
+							{
+								CastChecked<UPacksackComponent>(Controller->GetPawn()->GetComponentByClass(UPacksackComponent::StaticClass()))->UpdatePackUI.Broadcast();
+							}
+							return;
+						}
+					}
+					
+				}
+				CastChecked<UPacksackComponent>(Controller->GetPawn()->GetComponentByClass(UPacksackComponent::StaticClass()))->PackDataList.Add(FPackItmeStruct(this->StaticClass(),1,name));
+				if (CastChecked<UPacksackComponent>(Controller->GetPawn()->GetComponentByClass(UPacksackComponent::StaticClass()))->UpdatePackUI.IsBound())
+				{
+					CastChecked<UPacksackComponent>(Controller->GetPawn()->GetComponentByClass(UPacksackComponent::StaticClass()))->UpdatePackUI.Broadcast();
+				}
+				
+				return;
+			}
+			else
+			{
+				FName name = FName(Name);
+				CastChecked<UPacksackComponent>(Controller->GetPawn()->GetComponentByClass(UPacksackComponent::StaticClass()))->PackDataList.Add(FPackItmeStruct(this->StaticClass(),1,name));
+				if (CastChecked<UPacksackComponent>(Controller->GetPawn()->GetComponentByClass(UPacksackComponent::StaticClass()))->UpdatePackUI.IsBound())
+				{
+					CastChecked<UPacksackComponent>(Controller->GetPawn()->GetComponentByClass(UPacksackComponent::StaticClass()))->UpdatePackUI.Broadcast();
+				}
+				return;
+			}
+		}
+	}
+}
+
+void AItem::TipActor_Implementation(AController* Controller,bool bTip,int Value)
+{
+	IActorPacksackInterface::TipActor_Implementation(Controller,bTip,Value);
+	
+	UStaticMeshComponent*Mesh =CastChecked<UStaticMeshComponent>(GetComponentByClass(UStaticMeshComponent::StaticClass()));
+	
+	if (Mesh)
+	{
+		Mesh->SetRenderCustomDepth(bTip);
+		Value = FMath::Clamp(Value,1,255);
+		Mesh->SetCustomDepthStencilValue(Value);
+	}
+}
+
+void AItem::Pack_Client_Implementation()
+{
+	Pack_Server();
+}
+
+void AItem::Pack_Server_Implementation()
+{
+	Pack_NetMulticast();
+}
+bool AItem::Pack_Server_Validate()
+{
+	return true;
+}
+
+void AItem::Pack_NetMulticast_Implementation()
+{
+	SetActorLocation(FVector(0));
 }

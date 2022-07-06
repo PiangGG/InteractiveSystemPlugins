@@ -21,10 +21,24 @@ public:
 	int Numbers;
 	UPROPERTY(BlueprintReadWrite,EditAnywhere,Category="FPackItmeStruct",meta=(DisplayName="命名"))
 	FName Name;
+	
 	FPackItmeStruct()
 	{
 		ItemClass = AItem::StaticClass();
 		Numbers = 1;
 		Name = "NewKey";
+	}
+	FPackItmeStruct(TSubclassOf<AItem> Class,FName name)
+	{
+		ItemClass = Class;
+		Numbers = 1;
+		Name = name;
+		
+	}
+	FPackItmeStruct(TSubclassOf<AItem> Class,int numbers,FName name)
+	{
+		ItemClass = Class;
+		Numbers = numbers;
+		Name = name;
 	}
 };

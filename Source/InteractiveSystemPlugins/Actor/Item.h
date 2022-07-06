@@ -5,10 +5,11 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "InteractiveSystemPlugins/Data/PackItemData.h"
+#include "InteractiveSystemPlugins/Interface/ActorPacksackInterface.h"
 #include "Item.generated.h"
 
 UCLASS()
-class INTERACTIVESYSTEMPLUGINS_API AItem : public AActor
+class INTERACTIVESYSTEMPLUGINS_API AItem : public AActor,public IActorPacksackInterface
 {
 	GENERATED_BODY()
 	
@@ -23,9 +24,22 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	UFUNCTION()
-	virtual void Show();
+	virtual void Show(APawn* Pawn);
 	UFUNCTION()
-	virtual void Hide();
+	virtual void Hide(APawn* Pawn);
+	
+	UFUNCTION()
+	virtual void Pack_Implementation(AController* Controller)override;
+
+	UFUNCTION(Client,Reliable)
+	virtual void Pack_Client();
+	UFUNCTION(Server,UnReliable,WithValidation)
+	virtual void Pack_Server();
+	UFUNCTION(NetMulticast,Reliable)
+	virtual void Pack_NetMulticast();
+	
+	UFUNCTION()
+	virtual void TipActor_Implementation(AController* Controller,bool bTip,int Value) override;
 private:
 	
 	
@@ -49,5 +63,7 @@ public:
 	class UWidgetComponent* WidgetComponent;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Compment",meta=(DisplayName="靠近显示UI"))
 	UUserWidget *ShowUI;
+
+	//class UPacksackComponent& Component;
 };
 

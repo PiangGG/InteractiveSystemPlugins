@@ -34,4 +34,6 @@ public:
 	bool bSimulate = true;
 	UPROPERTY(BlueprintReadWrite,EditAnywhere,Category="FPackItmeStruct",meta=(DisplayName="靠近显示UI"))
 	TSubclassOf<UUserWidget> ShowUI;
+	UPROPERTY(BlueprintReadWrite,EditAnywhere,Category="FPackItmeStruct",meta=(DisplayName="是否叠加"))
+	bool bRepeat;
 };

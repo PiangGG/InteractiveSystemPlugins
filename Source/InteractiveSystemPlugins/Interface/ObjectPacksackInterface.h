@@ -3,28 +3,26 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "InteractiveSystemPlugins/Components/PacksackComponent.h"
 #include "InteractiveSystemPlugins/Data/PackItem.h"
 #include "UObject/Interface.h"
-#include "UIPacksackInterface.generated.h"
+#include "ObjectPacksackInterface.generated.h"
 
 // This class does not need to be modified.
 UINTERFACE(MinimalAPI)
-class UUIPacksackInterface : public UInterface
+class UObjectPacksackInterface : public UInterface
 {
 	GENERATED_BODY()
-
 };
 
 /**
  * 
  */
-class INTERACTIVESYSTEMPLUGINS_API IUIPacksackInterface
+class INTERACTIVESYSTEMPLUGINS_API IObjectPacksackInterface
 {
 	GENERATED_BODY()
 
+	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
-	
 	UFUNCTION(BlueprintNativeEvent,BlueprintCallable)
-	void UpdataUI(UPacksackComponent* PacksackComponent);
+	FPackItmeStruct GetObjectData(UObject*Object);
 };

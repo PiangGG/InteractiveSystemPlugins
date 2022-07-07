@@ -22,16 +22,31 @@ bool UWBP_Pack_RemoveBox::NativeOnDrop(const FGeometry& InGeometry, const FDragD
 				{
 					if (CastChecked<UPacksackComponent>(GetWorld()->GetFirstPlayerController()->GetPawn()->GetComponentByClass(UPacksackComponent::StaticClass())))
 					{
-						CastChecked<UPacksackComponent>(GetWorld()->GetFirstPlayerController()->GetPawn()->GetComponentByClass(UPacksackComponent::StaticClass()))->UnPick(DragShowUI->PackItmeStruct);
+						APawn *Pawn = GetGameInstance()->GetFirstLocalPlayerController()->GetPawn();
+						if (Pawn)
+						{
+							IUIPacksackInterface *UIPacksackInterface = Cast<IUIPacksackInterface>(DragShowUI);
+							if (UIPacksackInterface)
+							{
+								
+								if (CastChecked<UPacksackComponent>(Pawn->GetComponentByClass(UPacksackComponent::StaticClass())))
+								{
+									UPacksackComponent * PacksackComponent= CastChecked<UPacksackComponent>(Pawn->GetComponentByClass(UPacksackComponent::StaticClass()));
+									if (PacksackComponent)
+									{
+										FPackItmeStruct PackItmeStruct =  UIPacksackInterface->Execute_GetPackItmeStruct(DragShowUI);
+										PacksackComponent->UnPickShowSelected(PackItmeStruct);
+									}
+								}
+							}
+						}
+							
 					}
 				}
 			}
-			
-			
-			
 		}
 	}
-	return Super::NativeOnDrop(InGeometry, InDragDropEvent, InOperation);
+	return Super::NativeOnDrop(InGeometry, InDragDropEvent, DragDropOperation);
 }
 
 void UWBP_Pack_RemoveBox::NativeOnDragEnter(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent,

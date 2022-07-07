@@ -27,15 +27,17 @@ public:
 
 	virtual void NativeConstruct() override;
 
+	virtual FPackItmeStruct GetPackItmeStruct_Implementation() override;
 	/**
 	 * 拖拽UI事件
 	 */
 	virtual FReply NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
 	virtual void NativeOnDragDetected(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent, UDragDropOperation*& OutOperation) override;
 	virtual bool NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation) override;
-	
+
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 public:
-	UPROPERTY(BlueprintReadWrite,EditAnywhere,Category="Data")
+	UPROPERTY(Replicated,BlueprintReadWrite,EditAnywhere,Category="Data")
 	FPackItmeStruct PackItmeStruct;
 
 	UPROPERTY(BlueprintReadWrite,EditAnywhere,Category="Object")

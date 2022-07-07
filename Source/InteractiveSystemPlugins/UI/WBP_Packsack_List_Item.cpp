@@ -6,8 +6,10 @@
 #include "Blueprint/DragDropOperation.h"
 #include "Components/Image.h"
 #include "Components/SizeBox.h"
+#include "Components/TextBlock.h"
 #include "InteractiveSystemPlugins/Object/PackItemDragDropOperation.h"
 #include "InteractiveSystemPlugins/Object/Packsack_List_Item_Object.h"
+#include "Net/UnrealNetwork.h"
 
 void UWBP_Packsack_List_Item::PostInitProperties()
 {
@@ -40,15 +42,31 @@ void UWBP_Packsack_List_Item::NativeConstruct()
 	{
 		SizeBox->SetHeightOverride(Height);
 		SizeBox->SetWidthOverride(Width);
-		
 	}
 	Object = GetListItem<UPacksack_List_Item_Object>();
-	if (!Object)return;
-	if (CastChecked<UPacksack_List_Item_Object>(Object))
+	if (Object)
 	{
-		PackItmeStruct = CastChecked<UPacksack_List_Item_Object>(Object)->PackItme;
+		if (CastChecked<UPacksack_List_Item_Object>(Object))
+		{
+			PackItmeStruct = CastChecked<UPacksack_List_Item_Object>(Object)->PackItme;
+		}
+	}
+	else
+	{
+		IUIPacksackInterface* IPacksackInterface = Cast<IUIPacksackInterface>(this);
+		if (IPacksackInterface)
+		{
+			PackItmeStruct = IPacksackInterface->Execute_GetPackItmeStruct(this);
+		}
 	}
 }
+
+FPackItmeStruct UWBP_Packsack_List_Item::GetPackItmeStruct_Implementation()
+{
+	//UE_LOG(LogTemp,Warning,TEXT("GetPackItmeStruct_Implementation:%s"),PackItmeStruct.Name.ToString());
+	return IUIPacksackInterface::GetPackItmeStruct_Implementation();
+}
+
 
 FReply UWBP_Packsack_List_Item::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
 {
@@ -68,13 +86,25 @@ FReply UWBP_Packsack_List_Item::NativeOnMouseButtonDown(const FGeometry& InGeome
 void UWBP_Packsack_List_Item::NativeOnDragDetected(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent,
 	UDragDropOperation*& OutOperation)
 {
+	Super::NativeOnDragDetected(InGeometry, InMouseEvent, OutOperation);
 	UE_LOG(LogTemp,Warning,TEXT("NativeOnDragDetected"));
 	UWBP_Packsack_List_Item* DragShowUI = CreateWidget<UWBP_Packsack_List_Item>(GetWorld(),ThisClass::StaticClass());
 	if (DragShowUI)
 	{
-		DragShowUI->PackItmeStruct = PackItmeStruct;
+		IUIPacksackInterface* IPacksackInterface = Cast<IUIPacksackInterface>(this);
+		if (IPacksackInterface)
+		{
+			PackItmeStruct = IPacksackInterface->Execute_GetPackItmeStruct(this);
+			DragShowUI->PackItmeStruct.Name = PackItmeStruct.Name;
+			DragShowUI->PackItmeStruct.Numbers = PackItmeStruct.Numbers;
+			DragShowUI->PackItmeStruct.ItemClass = PackItmeStruct.ItemClass;
+		}
+		else
+		{
+			DragShowUI->PackItmeStruct = PackItmeStruct;
+		}
 		DragShowUI->Image_Icon = Image_Icon;
-
+		
 		UPackItemDragDropOperation *DragDropOperation = NewObject<UPackItemDragDropOperation>(GetWorld(),UPackItemDragDropOperation::StaticClass());
 		if (DragDropOperation)
 		{
@@ -85,7 +115,6 @@ void UWBP_Packsack_List_Item::NativeOnDragDetected(const FGeometry& InGeometry, 
 			
 		}
 	}
-	Super::NativeOnDragDetected(InGeometry, InMouseEvent, OutOperation);
 	
 }
 
@@ -97,10 +126,17 @@ bool UWBP_Packsack_List_Item::NativeOnDrop(const FGeometry& InGeometry, const FD
 		UWBP_Packsack_List_Item* DragShowUI =CastChecked<UWBP_Packsack_List_Item>(InOperation->Payload);
 		if (DragShowUI)
 		{
-			UE_LOG(LogTemp,Warning,TEXT("UWBP_Packsack_List_Item::NativeOnDrop"));
+			//UE_LOG(LogTemp,Warning,TEXT("UWBP_Packsack_List_Item::NativeOnDrop"));
 		}
 		
 	}
 	//return Super::NativeOnDrop(InGeometry, InDragDropEvent, InOperation);
 	return true;
+}
+
+void UWBP_Packsack_List_Item::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	
+	DOREPLIFETIME(UWBP_Packsack_List_Item,PackItmeStruct);
 }

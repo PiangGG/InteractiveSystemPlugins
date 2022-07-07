@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "InteractiveSystemPlugins/Data/PackItem.h"
+#include "InteractiveSystemPlugins/UI/WBP_Pack_RemoveItem_Box.h"
+#include "Net/UnrealNetwork.h"
 #include "PacksackComponent.generated.h"
 
 
@@ -13,6 +15,7 @@
 
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FUpdatePackUI);
+DECLARE_DYNAMIC_DELEGATE_TwoParams(FSelectedOption,bool,bSelectedOption,const FPackItmeStruct&,packItmeStruct);
 class UWBP_Packsack_Main;
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class INTERACTIVESYSTEMPLUGINS_API UPacksackComponent : public UActorComponent
@@ -67,11 +70,23 @@ public:
 	void UpdatePick_TimerEnd();
 
 	UFUNCTION()
-	void UnPick(FPackItmeStruct &packItmeStruct);
+	void UnPickShowSelected(const FPackItmeStruct& packItmeStruct);
 
 	UFUNCTION()
-	void ThrowOut(FPackItmeStruct &packItmeStruct);
+	void UnPick(const FPackItmeStruct& packItmeStruct);
+
+	UFUNCTION()
+	void UnPickOptionSeleted(bool OptionSeleted,FPackItmeStruct& packItmeStruct);
 	
+	UFUNCTION(Server,WithValidation,Reliable)
+	void UnPick_Server(const FPackItmeStruct& packItmeStruct);
+	
+	UFUNCTION()
+	void ThrowOut(const FPackItmeStruct &packItmeStruct);
+	UFUNCTION(Server,WithValidation,Reliable)
+	void ThrowOut_Server(const FPackItmeStruct &packItmeStruct);
+	
+	TSharedPtr<FPackItmeStruct> PackItmeStruct;
 	/*
 	 * 拥有者是否为Pawn
 	 */
@@ -101,10 +116,15 @@ public:
 
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	TSubclassOf<UWBP_Packsack_Main> WBP_Packsack_Main;
-
+	
 	FDelegateHandle DelegateHandle;
 	
 	FUpdatePackUI UpdatePackUI;
+
+	FDelegateHandle DelegateHandle_SelectedOption;
+	UPROPERTY()
+	FSelectedOption SelectedOption;
+
 private:
 	
 	
@@ -120,5 +140,8 @@ private:
 	UPROPERTY()
 	class UUserWidget* PackWidget;
 
+	
 	FTimerHandle TimerHandle_UpdatePack;
 };
+
+

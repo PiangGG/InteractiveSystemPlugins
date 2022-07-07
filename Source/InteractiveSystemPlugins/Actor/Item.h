@@ -16,10 +16,19 @@ class INTERACTIVESYSTEMPLUGINS_API AItem : public AActor,public IActorPacksackIn
 public:	
 	AItem();
 
+	virtual void Init();
+
+	virtual void Init(FName name);
+
+	UFUNCTION(Server,UnReliable,WithValidation)
+	virtual void Init_Server(FName name);
+
+	UFUNCTION(NetMulticast,UnReliable,WithValidation)
+	virtual void Init_NetMulticast(FName name);
 protected:
 	virtual void BeginPlay() override;
 
-	virtual void Init();
+	
 public:	
 	virtual void Tick(float DeltaTime) override;
 
@@ -51,6 +60,7 @@ public:
 	FString Name = "Cube";
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Data",meta=(DisplayName="Item列表"))
 	UDataTable * DT;
+	
 	//UPROPERTY()
 	FPackItmeDataStruct* Data;
 	
@@ -64,6 +74,7 @@ public:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Compment",meta=(DisplayName="靠近显示UI"))
 	UUserWidget *ShowUI;
 
+	
 	//class UPacksackComponent& Component;
 };
 

@@ -27,4 +27,7 @@ public:
 	
 	UFUNCTION(BlueprintNativeEvent,BlueprintCallable)
 	void UpdataUI(UPacksackComponent* PacksackComponent);
+	
+	UFUNCTION(BlueprintNativeEvent,BlueprintCallable)
+	FPackItmeStruct GetPackItmeStruct();
 };

@@ -9,6 +9,7 @@
 #include "Components/ListView.h"
 #include "Components/NamedSlot.h"
 #include "Components/SizeBox.h"
+#include "Components/SpinBox.h"
 #include "InteractiveSystemPlugins/Object/Packsack_List_Item_Object.h"
 
 bool UWBP_Packsack_Main::Initialize()
@@ -80,6 +81,11 @@ void UWBP_Packsack_Main::NativeConstruct()
 {
 	Super::NativeConstruct();
 	
+	//RemoveItem_Box = CreateWidget<UWBP_Pack_RemoveItem_Box>(CastChecked<APlayerController>(GetGameInstance()->GetFirstLocalPlayerController()),WBP_Pack_RemoveItem_Box);
+	if (RemoveItem_Box)
+	{
+		RemoveItem_Box->SetVisibility(ESlateVisibility::Hidden);
+	}
 }
 
 UListView* UWBP_Packsack_Main::GetListView()
@@ -110,5 +116,28 @@ void UWBP_Packsack_Main::UpdataUI_Implementation(UPacksackComponent* PacksackCom
 		UPacksack_List_Item_Object *Object = NewObject<UPacksack_List_Item_Object>();
 		Object->SetPackItme(PackDataItme);
 		GetListView()->AddItem(Object);
+	}
+}
+
+void UWBP_Packsack_Main::ShowRemoveItemBox(UPacksackComponent*PacksackComponent,const FPackItmeStruct& packItmeStruct)
+{
+		if (RemoveItem_Box)
+		{
+			if (RemoveItem_Box->SpinBox)
+			{
+				RemoveItem_Box->SpinBox->SetValue(1.0f);
+			}
+			RemoveItem_Box->SetParent(this);
+			RemoveItem_Box->PackItmeStruct = packItmeStruct;
+			RemoveItem_Box->SetVisibility(ESlateVisibility::Visible);
+			PacksackComponent->SelectedOption.BindUFunction(PacksackComponent,FName("UnPickOptionSeleted"));
+		}
+}
+
+void UWBP_Packsack_Main::HideRemoveItemBox(UPacksackComponent* PacksackComponent)
+{
+	if (RemoveItem_Box)
+	{
+		RemoveItem_Box->SetVisibility(ESlateVisibility::Hidden);
 	}
 }

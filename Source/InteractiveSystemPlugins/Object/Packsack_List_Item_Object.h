@@ -21,10 +21,10 @@ public:
 	
 	UPacksack_List_Item_Object(FPackItmeStruct &PackItmeStruct);
 	
-	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	UPROPERTY(Replicated,EditAnywhere,BlueprintReadWrite)
 	FPackItmeStruct PackItme;
 
-	
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	
 	UFUNCTION(BlueprintCallable)
 	void SetPackItme(FPackItmeStruct &PackItmeStruct);

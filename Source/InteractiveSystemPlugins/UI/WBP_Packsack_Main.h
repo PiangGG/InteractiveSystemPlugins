@@ -26,6 +26,15 @@ public:
 
 	UPROPERTY(BlueprintReadWrite,EditAnywhere,meta=(BindWidget))
 	class UWBP_Pack_RemoveBox*RemoveBox;
+	
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	TSubclassOf<UWBP_Pack_RemoveItem_Box> WBP_Pack_RemoveItem_Box;
+	
+	/*UPROPERTY()
+	UWBP_Pack_RemoveItem_Box*RemoveItem_Box;*/
+	
+	UPROPERTY(BlueprintReadWrite,EditAnywhere,meta=(BindWidget))
+	UWBP_Pack_RemoveItem_Box*RemoveItem_Box;
 	/*
 	UPROPERTY(BlueprintReadWrite,EditAnywhere,meta=(BindWidget))
 	class UListView * ListView_1;
@@ -65,4 +74,7 @@ public:
 
 	UPROPERTY()
 	APlayerController* PlayerController;
+
+	void ShowRemoveItemBox(UPacksackComponent*PacksackComponent, const FPackItmeStruct& packItmeStruct);
+	void HideRemoveItemBox(UPacksackComponent*PacksackComponent);
 };

@@ -37,18 +37,19 @@ AItem::AItem()
 	bReplicates = true;
 	SetReplicates(true);
 	SetReplicateMovement(true);
+	
 }
 
 // Called when the game starts or when spawned
 void AItem::BeginPlay()
 {
 	Super::BeginPlay();
+
 	Init();
 }
 
 void AItem::Init()
 {
-
 	if (DT)
 	{
 		Data = DT->FindRow<FPackItmeDataStruct>(*Name,TEXT(""));
@@ -56,9 +57,14 @@ void AItem::Init()
 	
 	if (Data)
 	{
+		if (SceneComponent)
+		{
+			SetRootComponent(SceneComponent);
+		}
 		if (SphereComponent)
 		{
 			SphereComponent->SetSphereRadius(Data->SphereRadius);
+			//SphereComponent->SetupAttachment(SceneComponent);
 		}
 		if (Data->Mesh_SK)
 		{
@@ -103,7 +109,93 @@ void AItem::Init()
 			}
 		}
 	}
+}
+
+void AItem::Init(FName name)
+{
+	Init_Server(name);
+}
+
+void AItem::Init_Server_Implementation(FName name)
+{
+	Init_NetMulticast(name);
+}
+
+bool AItem::Init_Server_Validate(FName name)
+{
+	return true;
+}
+
+void AItem::Init_NetMulticast_Implementation(FName name)
+{
+	if (DT)
+	{
+		Data = DT->FindRow<FPackItmeDataStruct>(name,TEXT(""));
+	}
 	
+	if (Data)
+	{
+		if (SceneComponent)
+		{
+			SetRootComponent(SceneComponent);
+		}
+		
+		if (SphereComponent)
+		{
+			SphereComponent->SetSphereRadius(Data->SphereRadius);
+			//SphereComponent->SetupAttachment(SceneComponent);
+		}
+		
+		if (Data->Mesh_SK)
+		{
+		
+		}
+
+		if (Data->Mesh_SM)
+		{
+			
+			UStaticMeshComponent * Mesh_SM = NewObject<UStaticMeshComponent>(this,"Mesh_SM");
+			if (Mesh_SM)
+			{
+				AddInstanceComponent(Mesh_SM);
+				AddOwnedComponent(Mesh_SM);
+				Mesh_SM->RegisterComponent();
+				Mesh_SM->SetStaticMesh(Data->Mesh_SM);
+				if (Mesh_SM!=GetRootComponent())
+				{
+					Mesh_SM->AttachToComponent(GetRootComponent(),FAttachmentTransformRules::KeepRelativeTransform);
+				}
+				SetRootComponent(Mesh_SM);
+				Mesh_SM->SetSimulatePhysics(Data->bSimulate);
+			}
+			
+			if (SphereComponent)
+			{
+				SphereComponent->AttachToComponent(GetRootComponent(),FAttachmentTransformRules::KeepRelativeTransform);
+				SphereComponent->SetRelativeLocation(FVector(0));
+			}
+			
+			if (WidgetComponent&&Data->ShowUI)
+			{
+				if (SphereComponent)
+				{
+					WidgetComponent->AttachToComponent(SphereComponent,FAttachmentTransformRules::KeepRelativeTransform);
+					WidgetComponent->SetRelativeLocation(FVector(0));
+				}
+				
+				ShowUI = CreateWidget<UUserWidget>(GetWorld(),Data->ShowUI);
+				if (ShowUI)
+				{
+					WidgetComponent->SetWidget(ShowUI);
+				}
+			}
+		}
+	}
+}
+
+bool AItem::Init_NetMulticast_Validate(FName name)
+{
+	return true;
 }
 
 // Called every frame
@@ -122,8 +214,6 @@ void AItem::Show(APawn* Pawn)
 	{
 		WidgetComponent->SetVisibility(true);
 	}
-	
-	
 }
 
 void AItem::Hide(APawn* Pawn)

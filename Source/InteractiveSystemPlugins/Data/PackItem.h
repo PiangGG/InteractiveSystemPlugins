@@ -41,4 +41,11 @@ public:
 		Numbers = numbers;
 		Name = name;
 	}
+
+	FPackItmeStruct(const FPackItmeStruct& PackItmeStruct)
+	{
+		ItemClass = PackItmeStruct.ItemClass;
+		Numbers = PackItmeStruct.Numbers;
+		Name = PackItmeStruct.Name;
+	}
 };

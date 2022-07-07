@@ -26,6 +26,7 @@ public:
 	void Pack(AController* Controller);
 	UFUNCTION(BlueprintNativeEvent,BlueprintCallable)
 	void TipActor(AController* Controller,bool bTip,int Value);
+	
 	/*UFUNCTION(BlueprintNativeEvent)
 	AActor* Pack();*/
 };

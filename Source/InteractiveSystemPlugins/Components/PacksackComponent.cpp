@@ -28,6 +28,7 @@ void UPacksackComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(UPacksackComponent,PackDataList)
+	//DOREPLIFETIME(UPacksackComponent,PackItmeStruct)
 	//DOREPLIFETIME(UPacksackComponent,PackWidget)
 }
 
@@ -183,46 +184,129 @@ TArray<AActor*> UPacksackComponent::GetAllOverlapActors()
 	return OutOverlappingActors;
 }
 
-void UPacksackComponent::UnPick(FPackItmeStruct &packItmeStruct)
+void UPacksackComponent::UnPickShowSelected(const FPackItmeStruct& packItmeStruct)
 {
-	for (int i =0;i<PackDataList.Num();i++)
+	if (packItmeStruct.Numbers<=1)
 	{
-		if (!PackDataList.IsValidIndex(i))return;
-		
-		if (PackDataList[i].Name == packItmeStruct.Name)
+		UnPick(packItmeStruct);
+		if (UpdatePackUI.IsBound())
 		{
-			int CurrentNumber = PackDataList[i].Numbers-packItmeStruct.Numbers;
-			if (CurrentNumber<=0)
-			{
-				PackDataList.RemoveAt(i);
-				PackDataList[i].Numbers = CurrentNumber;
-				//ThrowOut(FPackItmeStruct(packItmeStruct.Name,));
-			}
-			else
-			{
-				ThrowOut(packItmeStruct);
-			}
-			
-			return;
+			UpdatePackUI.Broadcast();
 		}
+	}
+	else
+	{
+		if (CastChecked<UWBP_Packsack_Main>(PackWidget))
+		{
+			CastChecked<UWBP_Packsack_Main>(PackWidget)->ShowRemoveItemBox(this,packItmeStruct);
+			if (UpdatePackUI.IsBound())
+			{
+				UpdatePackUI.Broadcast();
+			}
+		}
+		else
+		{
+			UnPick(packItmeStruct);
+			if (UpdatePackUI.IsBound())
+			{
+				UpdatePackUI.Broadcast();
+			}
+		}
+	}
+}
+
+
+void UPacksackComponent::UnPickOptionSeleted(bool OptionSeleted,FPackItmeStruct& packItmeStruct)
+{
+	if (OptionSeleted&&CastChecked<UWBP_Packsack_Main>(PackWidget)->RemoveItem_Box)
+	{
+		packItmeStruct.Numbers = CastChecked<UWBP_Packsack_Main>(PackWidget)->RemoveItem_Box->RemoveNumber;
+		UnPick(packItmeStruct);
+	}
+	else
+	{
+		UnPick(packItmeStruct);
 	}
 	if (UpdatePackUI.IsBound())
 	{
 		UpdatePackUI.Broadcast();
 	}
+	SelectedOption.Unbind();
+	if (CastChecked<UWBP_Packsack_Main>(PackWidget))
+	{
+		CastChecked<UWBP_Packsack_Main>(PackWidget)->HideRemoveItemBox(this);
+	}
 }
 
-void UPacksackComponent::ThrowOut(FPackItmeStruct& packItmeStruct)
+void UPacksackComponent::UnPick(const FPackItmeStruct& packItmeStruct)
+{
+	UnPick_Server(packItmeStruct);
+}
+
+void UPacksackComponent::UnPick_Server_Implementation(const FPackItmeStruct& packItmeStruct)
+{
+	PackItmeStruct = MakeShareable(new FPackItmeStruct(packItmeStruct));
+	if (!PackItmeStruct)return;
+	
+	for (int i =0;i<PackDataList.Num();i++)
+	{
+		if (!PackDataList.IsValidIndex(i))return;
+		
+		if (PackDataList[i].Name == PackItmeStruct->Name)
+		{
+			int CurrentNumber = PackDataList[i].Numbers-PackItmeStruct->Numbers;
+			if (CurrentNumber<=0)
+			{
+				ThrowOut(PackDataList[i]);
+				PackDataList.RemoveAt(i);
+			}
+			else
+			{
+				PackDataList[i].Numbers = CurrentNumber;
+				ThrowOut(*PackItmeStruct);
+			}
+			if (UpdatePackUI.IsBound())
+			{
+				UpdatePackUI.Broadcast();
+			}
+			return;
+		}
+	}
+}
+
+bool UPacksackComponent::UnPick_Server_Validate(const FPackItmeStruct& packItmeStruct)
+{
+	return true;
+}
+
+void UPacksackComponent::ThrowOut(const FPackItmeStruct &packItmeStruct)
+{
+	ThrowOut_Server(packItmeStruct);
+}
+
+
+void UPacksackComponent::ThrowOut_Server_Implementation(const FPackItmeStruct &packItmeStruct)
 {
 	if (GetOwner())
 	{
-		for (int i = 0;i<packItmeStruct.Numbers;i++)
+		for (int i = 0;i<PackItmeStruct->Numbers;i++)
 		{
-			AItem* Item = GetWorld()->SpawnActor<AItem>(packItmeStruct.ItemClass,GetOwner()->GetActorLocation(),GetOwner()->GetActorRotation());
-			Item->Name = packItmeStruct.Name.ToString();
+			FActorSpawnParameters ActorSpawnParameters;
+			ActorSpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+			auto* Item = GetWorld()->SpawnActor<AItem>(PackItmeStruct->ItemClass,GetOwner()->GetActorLocation(),GetOwner()->GetActorRotation(),ActorSpawnParameters);
+
+			if (Item)
+			{
+				Item->Name = PackItmeStruct->Name.ToString();
+				CastChecked<AItem>(Item)->Init(PackItmeStruct->Name);
+			}
 		}
 	}
-	
+}
+
+bool UPacksackComponent::ThrowOut_Server_Validate(const FPackItmeStruct &packItmeStruct)
+{
+	return  true;
 }
 
 
@@ -233,7 +317,8 @@ void UPacksackComponent::OpenPick()
 		if (Owner)
 		{
 			if (!CastChecked<APawn>(Owner)->GetController())return;
-			
+			CastChecked<APlayerController>(CastChecked<APawn>(Owner)->GetController())->SetMouseCursorWidget(EMouseCursor::Default,PackWidget);
+			CastChecked<APlayerController>(CastChecked<APawn>(Owner)->GetController())->bShowMouseCursor = true;
 			if (CastChecked<APawn>(Owner)->GetController()->IsLocalPlayerController())
 			{
 				PackWidget = CreateWidget<UUserWidget>(CastChecked<APlayerController>(CastChecked<APawn>(Owner)->GetController()),WBP_Packsack_Main);
@@ -253,6 +338,10 @@ void UPacksackComponent::OpenPick()
 	{
 		PackWidget->RemoveFromViewport();
 		PackWidget = nullptr;
+		
+		if (!CastChecked<APawn>(Owner)->GetController())return;
+		CastChecked<APlayerController>(CastChecked<APawn>(Owner)->GetController())->bShowMouseCursor = false;
+		
 		//UpdatePick_TimerEnd();
 	}
 }

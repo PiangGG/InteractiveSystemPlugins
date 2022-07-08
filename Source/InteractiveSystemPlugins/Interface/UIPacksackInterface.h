@@ -27,7 +27,25 @@ public:
 	
 	UFUNCTION(BlueprintNativeEvent,BlueprintCallable)
 	void UpdataUI(UPacksackComponent* PacksackComponent);
+
+	UFUNCTION(BlueprintNativeEvent,BlueprintCallable)
+	void UpdataUIData(TArray<FPackItmeStruct> &StorageDataList);
 	
 	UFUNCTION(BlueprintNativeEvent,BlueprintCallable)
 	FPackItmeStruct GetPackItmeStruct();
+
+	UFUNCTION(BlueprintNativeEvent,BlueprintCallable)
+	TArray<FPackItmeStruct> GetStorageDataList();
+
+	UFUNCTION(BlueprintNativeEvent,BlueprintCallable)
+	AActor* GetWidgetOwner();
+
+	UFUNCTION(BlueprintNativeEvent,BlueprintCallable)
+	void SetWidgetOwner(AActor* actor);
+
+	UFUNCTION(BlueprintNativeEvent,BlueprintCallable)
+	UUserWidget* GetParentWidget();
+	
+	UFUNCTION(BlueprintNativeEvent,BlueprintCallable)
+	void SetParentWidget();
 };

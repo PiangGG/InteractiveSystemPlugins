@@ -85,8 +85,7 @@ public:
 	void ThrowOut(const FPackItmeStruct &packItmeStruct);
 	UFUNCTION(Server,WithValidation,Reliable)
 	void ThrowOut_Server(const FPackItmeStruct &packItmeStruct);
-	
-	TSharedPtr<FPackItmeStruct> PackItmeStruct;
+
 	/*
 	 * 拥有者是否为Pawn
 	 */
@@ -101,32 +100,37 @@ public:
 
 	UFUNCTION()
 	void SetTargetPackActorTip();
-	UPROPERTY()
-	AActor* LastTargetPackActor;
-
-	UPROPERTY()
-	AActor* CurrentTargetPackActor;
-public:	
+	
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
+
+public:	
+	
 	
 	UPROPERTY(Replicated,BlueprintReadWrite,EditAnywhere)
 	TArray<FPackItmeStruct> PackDataList;
-	
-
 
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	TSubclassOf<UWBP_Packsack_Main> WBP_Packsack_Main;
 	
 	FDelegateHandle DelegateHandle;
-	
+
+	UPROPERTY()
 	FUpdatePackUI UpdatePackUI;
 
 	FDelegateHandle DelegateHandle_SelectedOption;
+	
 	UPROPERTY()
 	FSelectedOption SelectedOption;
 
-private:
+	UPROPERTY()
+	AActor* LastTargetPackActor;
+
+	UPROPERTY()
+	AActor* CurrentTargetPackActor;
 	
+	TSharedPtr<FPackItmeStruct> PackItmeStruct;
+private:
 	
 	UPROPERTY()
 	class USphereComponent* SphereComponent;
@@ -139,7 +143,6 @@ private:
 	
 	UPROPERTY()
 	class UUserWidget* PackWidget;
-
 	
 	FTimerHandle TimerHandle_UpdatePack;
 };

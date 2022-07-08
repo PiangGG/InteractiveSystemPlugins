@@ -3,73 +3,12 @@
 
 #include "WBP_Packsack_Main.h"
 
-#include "PackListView.h"
-#include "PackTileView.h"
-#include "Components/CanvasPanelSlot.h"
 #include "Components/ListView.h"
-#include "Components/NamedSlot.h"
-#include "Components/SizeBox.h"
 #include "Components/SpinBox.h"
 #include "InteractiveSystemPlugins/Object/Packsack_List_Item_Object.h"
 
 bool UWBP_Packsack_Main::Initialize()
 {
-	/*if (ListView_1)
-	{
-		switch (ListType)
-		{
-		case EPackListType::List:
-			ListView_1 = PackListView;
-			if (CastChecked<UPackListView>(ListView_1))
-			{
-				CastChecked<UPackListView>(ListView_1)->SetWidgetEntry(ListItem);
-			}
-			break;
-		case EPackListType::Tile:
-			ListView_1 = PackTileView;
-			if (CastChecked<UPackTileView>(ListView_1))
-			{
-				CastChecked<UPackTileView>(ListView_1)->SetWidgetEntry(ListItem);
-			}
-			break;
-		default:
-			break;;
-		}
-	}*/
-	if (CanvasPanel_Main)
-	{
-		CanvasPanel_Main->AddChildToCanvas(NamedSlot);
-		CanvasPanel_Main->AddChildToCanvas(SizeBox);
-	}
-	if (SizeBox)
-	{
-		SizeBox->SetHeightOverride(HeightOverride);
-		SizeBox->SetWidthOverride(WidthOverride);
-	}
-	if (NamedSlot)
-	{
-		NamedSlot->ClearChildren();
-		//CastChecked<UCanvasPanelSlot>(SizeBox->Slot)->SetPosition(ListPosition);
-		switch (ListType)
-		{
-		case EPackListType::List:
-			if (PackListView && PackTileView)
-				PackListView->SetVisibility(ESlateVisibility::Visible);
-				PackTileView->SetVisibility(ESlateVisibility::Hidden);
-				NamedSlot->AddChild(PackListView);
-				PackListView->SetWidgetEntry(ListItem);
-				break;
-		case EPackListType::Tile:
-			if (PackListView && PackTileView)
-				PackListView->SetVisibility(ESlateVisibility::Hidden);
-				PackTileView->SetVisibility(ESlateVisibility::Visible);
-				NamedSlot->AddChild(PackTileView);
-				PackTileView->SetWidgetEntry(ListItem);
-				break;
-		default:
-			break;;
-		}
-	}
 	if (!Super::Initialize())
 	{
 		return false;
@@ -80,24 +19,42 @@ bool UWBP_Packsack_Main::Initialize()
 void UWBP_Packsack_Main::NativeConstruct()
 {
 	Super::NativeConstruct();
-	
-	//RemoveItem_Box = CreateWidget<UWBP_Pack_RemoveItem_Box>(CastChecked<APlayerController>(GetGameInstance()->GetFirstLocalPlayerController()),WBP_Pack_RemoveItem_Box);
-	if (RemoveItem_Box)
-	{
-		RemoveItem_Box->SetVisibility(ESlateVisibility::Hidden);
-	}
-}
 
-UListView* UWBP_Packsack_Main::GetListView()
-{
-	switch (ListType)
+	if (RemoveItemBox)
 	{
-	case EPackListType::List:
-		return PackListView;
-	case EPackListType::Tile:
-		return PackTileView;
-	default:
-		return nullptr;
+		RemoveItemBox->SetVisibility(ESlateVisibility::Hidden);
+	}
+	
+	if (!GetWidgetOwner_Implementation())return;
+
+	if (RemoveItemBox)
+	{
+		IUIPacksackInterface *UIPacksackInterface = CastChecked<IUIPacksackInterface>(RemoveItemBox);
+		if (UIPacksackInterface)
+		{
+			UIPacksackInterface->SetWidgetOwner(GetWidgetOwner_Implementation());
+			UIPacksackInterface->Execute_SetParentWidget(this);
+		}
+	}
+	
+	if (StorageDataList)
+	{
+		IUIPacksackInterface *UIPacksackInterface = CastChecked<IUIPacksackInterface>(StorageDataList);
+		if (UIPacksackInterface)
+		{
+			UIPacksackInterface->SetWidgetOwner(GetWidgetOwner_Implementation());
+			UIPacksackInterface->Execute_SetParentWidget(this);
+		}
+	}
+
+	if (RemoveBox)
+	{
+		IUIPacksackInterface *UIPacksackInterface = CastChecked<IUIPacksackInterface>(RemoveBox);
+		if (UIPacksackInterface)
+		{
+			UIPacksackInterface->SetWidgetOwner(GetWidgetOwner_Implementation());
+			UIPacksackInterface->Execute_SetParentWidget(this);
+		}
 	}
 }
 
@@ -106,38 +63,63 @@ void UWBP_Packsack_Main::AddItem(UObject* Object)
 	if (!GetListView()||!Object)return;
 }
 
+UListView* UWBP_Packsack_Main::GetListView()
+{
+	if (StorageDataList)
+	{
+		return StorageDataList->GetListView();
+	}
+	return nullptr;
+}
+
 void UWBP_Packsack_Main::UpdataUI_Implementation(UPacksackComponent* PacksackComponent)
 {
 	if (!GetListView()||!PacksackComponent)return;
-	GetListView()->ClearListItems();
-	GetListView()->ClearSelection();
-	for (auto PackDataItme : PacksackComponent->PackDataList)
+
+	if (StorageDataList)
 	{
-		UPacksack_List_Item_Object *Object = NewObject<UPacksack_List_Item_Object>();
-		Object->SetPackItme(PackDataItme);
-		GetListView()->AddItem(Object);
+		IUIPacksackInterface*UIPacksackInterface = CastChecked<IUIPacksackInterface>(StorageDataList);
+		if (UIPacksackInterface)
+		{
+			UIPacksackInterface->Execute_UpdataUIData(StorageDataList,PacksackComponent->PackDataList);
+		}
 	}
+}
+
+TArray<FPackItmeStruct> UWBP_Packsack_Main::GetStorageDataList_Implementation()
+{
+	if (true)
+	{
+		
+	}
+	return IUIPacksackInterface::GetStorageDataList_Implementation();
+}
+
+AActor* UWBP_Packsack_Main::GetWidgetOwner_Implementation()
+{
+	
+	return IUIPacksackInterface::GetWidgetOwner_Implementation();
 }
 
 void UWBP_Packsack_Main::ShowRemoveItemBox(UPacksackComponent*PacksackComponent,const FPackItmeStruct& packItmeStruct)
 {
-		if (RemoveItem_Box)
+	if (RemoveItemBox)
+	{
+		if (RemoveItemBox->SpinBox)
 		{
-			if (RemoveItem_Box->SpinBox)
-			{
-				RemoveItem_Box->SpinBox->SetValue(1.0f);
-			}
-			RemoveItem_Box->SetParent(this);
-			RemoveItem_Box->PackItmeStruct = packItmeStruct;
-			RemoveItem_Box->SetVisibility(ESlateVisibility::Visible);
-			PacksackComponent->SelectedOption.BindUFunction(PacksackComponent,FName("UnPickOptionSeleted"));
+			RemoveItemBox->SpinBox->SetValue(1.0f);
 		}
+		RemoveItemBox->SetParent(this);
+		RemoveItemBox->PackItmeStruct = packItmeStruct;
+		RemoveItemBox->SetVisibility(ESlateVisibility::Visible);
+		PacksackComponent->SelectedOption.BindUFunction(PacksackComponent,FName("UnPickOptionSeleted"));
+	}
 }
 
 void UWBP_Packsack_Main::HideRemoveItemBox(UPacksackComponent* PacksackComponent)
 {
-	if (RemoveItem_Box)
+	if (RemoveItemBox)
 	{
-		RemoveItem_Box->SetVisibility(ESlateVisibility::Hidden);
+		RemoveItemBox->SetVisibility(ESlateVisibility::Hidden);
 	}
 }

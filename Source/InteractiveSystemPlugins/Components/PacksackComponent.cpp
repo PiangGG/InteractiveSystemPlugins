@@ -55,16 +55,15 @@ void UPacksackComponent::InitSphereComponent()
 		SphereComponent->OnComponentBeginOverlap.AddDynamic(this,&UPacksackComponent::OnSphereComponentBeginOverlap);
 		
 		SphereComponent->OnComponentEndOverlap.AddDynamic(this,&UPacksackComponent::OnSphereComponentEndOverlap);
-
 		
-	}
-	if (GetWorld()->GetGameInstance()->GetFirstLocalPlayerController())
-	{
-		GetWorld()->GetGameInstance()->GetFirstLocalPlayerController()->InputComponent->BindAction("Pick",EInputEvent::IE_Pressed,this,&UPacksackComponent::Pick);
-	}
-	if (GetWorld()->GetGameInstance()->GetFirstLocalPlayerController())
-	{
-		GetWorld()->GetGameInstance()->GetFirstLocalPlayerController()->InputComponent->BindAction("OpenPick",EInputEvent::IE_Pressed,this,&UPacksackComponent::OpenPick);
+		if (GetWorld()->GetGameInstance()->GetFirstLocalPlayerController())
+		{
+			GetWorld()->GetGameInstance()->GetFirstLocalPlayerController()->InputComponent->BindAction("Pick",EInputEvent::IE_Pressed,this,&UPacksackComponent::Pick);
+		}
+		if (GetWorld()->GetGameInstance()->GetFirstLocalPlayerController())
+		{
+			GetWorld()->GetGameInstance()->GetFirstLocalPlayerController()->InputComponent->BindAction("OpenPick",EInputEvent::IE_Pressed,this,&UPacksackComponent::OpenPick);
+		}
 	}
 }
 
@@ -97,6 +96,7 @@ void UPacksackComponent::PickByF()
 void UPacksackComponent::Pick()
 {
 	PickServer();
+	
 	if (UpdatePackUI.IsBound())
 	{
 		UpdatePackUI.Broadcast();
@@ -218,9 +218,9 @@ void UPacksackComponent::UnPickShowSelected(const FPackItmeStruct& packItmeStruc
 
 void UPacksackComponent::UnPickOptionSeleted(bool OptionSeleted,FPackItmeStruct& packItmeStruct)
 {
-	if (OptionSeleted&&CastChecked<UWBP_Packsack_Main>(PackWidget)->RemoveItem_Box)
+	if (OptionSeleted&&CastChecked<UWBP_Packsack_Main>(PackWidget)->RemoveItemBox)
 	{
-		packItmeStruct.Numbers = CastChecked<UWBP_Packsack_Main>(PackWidget)->RemoveItem_Box->RemoveNumber;
+		packItmeStruct.Numbers = CastChecked<UWBP_Packsack_Main>(PackWidget)->RemoveItemBox->RemoveNumber;
 		UnPick(packItmeStruct);
 	}
 	else
@@ -317,7 +317,7 @@ void UPacksackComponent::OpenPick()
 		if (Owner)
 		{
 			if (!CastChecked<APawn>(Owner)->GetController())return;
-			CastChecked<APlayerController>(CastChecked<APawn>(Owner)->GetController())->SetMouseCursorWidget(EMouseCursor::Default,PackWidget);
+			//CastChecked<APlayerController>(CastChecked<APawn>(Owner)->GetController())->SetMouseCursorWidget(EMouseCursor::Default,PackWidget);
 			CastChecked<APlayerController>(CastChecked<APawn>(Owner)->GetController())->bShowMouseCursor = true;
 			if (CastChecked<APawn>(Owner)->GetController()->IsLocalPlayerController())
 			{
@@ -325,7 +325,12 @@ void UPacksackComponent::OpenPick()
 				if (PackWidget)
 				{
 					PackWidget->AddToViewport();
-				
+					
+					IUIPacksackInterface*UIPacksackInterfac = CastChecked<IUIPacksackInterface>(PackWidget);
+					if (UIPacksackInterfac)
+					{
+						UIPacksackInterfac->Execute_SetWidgetOwner(PackWidget,Owner);
+					}
 					if (UpdatePackUI.IsBound())
 					{
 						UpdatePackUI.Broadcast();
@@ -411,8 +416,9 @@ void UPacksackComponent::UpdatePick_TimerEnd()
 
 bool UPacksackComponent::GetOwberisPawn()
 {
+	if (GetOwner()==nullptr)return false;
 	Owner = CastChecked<APawn>(GetOwner());
-	if (Owner)
+	if (Owner!=nullptr)
 	{
 		return  true;
 	}
@@ -448,6 +454,8 @@ void UPacksackComponent::BeginDestroy()
 
 void UPacksackComponent::SetTargetPackActorTip()
 {
+	if (GetOwberisPawn()==false)return;
+	
 	if (CastChecked<APawn>(Owner))
 	{
 		if (CastChecked<APawn>(Owner)->GetController())

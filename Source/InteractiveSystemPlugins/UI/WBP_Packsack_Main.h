@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "StorageDataList.h"
 #include "WBP_Packsack_List_Item.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/CanvasPanel.h"
@@ -21,60 +22,49 @@ public:
 	UPROPERTY(BlueprintReadWrite,EditAnywhere,meta=(BindWidget))
 	class UCanvasPanel*CanvasPanel_Main;
 	
+	/**
+	 * 移除背包Item选择数量
+	 */
+	/*UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	TSubclassOf<UWBP_Pack_RemoveItem_Box> RemoveItemBox_Sub;*/
 	UPROPERTY(BlueprintReadWrite,EditAnywhere,meta=(BindWidget))
-	class UNamedSlot* NamedSlot;
+	class UWBP_Pack_RemoveItem_Box*RemoveItemBox;
+	
+	/*UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	TSubclassOf<UStorageDataList> StorageDataList_Sub;*/
+	UPROPERTY(BlueprintReadWrite,EditAnywhere,meta=(BindWidget))
+	class UStorageDataList*StorageDataList;
 
+	/*UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	TSubclassOf<UWBP_Pack_RemoveBox> RemoveBox_Sub;*/
 	UPROPERTY(BlueprintReadWrite,EditAnywhere,meta=(BindWidget))
 	class UWBP_Pack_RemoveBox*RemoveBox;
-	
-	UPROPERTY(EditAnywhere,BlueprintReadWrite)
-	TSubclassOf<UWBP_Pack_RemoveItem_Box> WBP_Pack_RemoveItem_Box;
-	
-	/*UPROPERTY()
-	UWBP_Pack_RemoveItem_Box*RemoveItem_Box;*/
-	
-	UPROPERTY(BlueprintReadWrite,EditAnywhere,meta=(BindWidget))
-	UWBP_Pack_RemoveItem_Box*RemoveItem_Box;
-	/*
-	UPROPERTY(BlueprintReadWrite,EditAnywhere,meta=(BindWidget))
-	class UListView * ListView_1;
-	*/
-	UPROPERTY(BlueprintReadWrite,EditAnywhere,meta=(BindWidget))
-	class UPackListView*PackListView;
-	UPROPERTY(BlueprintReadWrite,EditAnywhere,meta=(BindWidget))
-	class UPackTileView*PackTileView;
-	UPROPERTY(BlueprintReadWrite,EditAnywhere,meta=(BindWidget))
-	class USizeBox*SizeBox;
-	UPROPERTY(BlueprintReadWrite,EditAnywhere)
-	TSubclassOf<UWBP_Packsack_List_Item> ListItem;
 
-	UPROPERTY(BlueprintReadWrite,EditAnywhere)
-	FVector2D ListPosition = FVector2D(0.0f,0.0f);
-	UPROPERTY(BlueprintReadWrite,EditAnywhere)
-	float WidthOverride = 500.0f;
-	UPROPERTY(BlueprintReadWrite,EditAnywhere)
-	float HeightOverride = 500.0f;
 private:
 	
 public:
 	virtual bool Initialize() override;
 	virtual void NativeConstruct() override;
 	
-	UFUNCTION(BlueprintCallable)
-	class UListView *GetListView();
-
+	
 	UFUNCTION(BlueprintCallable)
 	void AddItem(UObject *Object);
+
+	UFUNCTION(BlueprintCallable)
+	class UListView *GetListView();
 	
 	UFUNCTION()
 	virtual void UpdataUI_Implementation(UPacksackComponent* PacksackComponent) override;
 
-	UPROPERTY(BlueprintReadWrite,EditAnywhere,meta=(DisplayName = "列表类型"))
-	EPackListType ListType = EPackListType::Tile;
-
+	virtual TArray<FPackItmeStruct> GetStorageDataList_Implementation() override;
+	
+	UFUNCTION()
+	virtual AActor* GetWidgetOwner_Implementation() override;
+	
 	UPROPERTY()
 	APlayerController* PlayerController;
 
 	void ShowRemoveItemBox(UPacksackComponent*PacksackComponent, const FPackItmeStruct& packItmeStruct);
+	
 	void HideRemoveItemBox(UPacksackComponent*PacksackComponent);
 };

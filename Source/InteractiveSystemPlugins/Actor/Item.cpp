@@ -237,17 +237,7 @@ void AItem::Pack_Implementation(AController* Controller)
 			if (Data->bRepeat)
 			{
 				FName name = FName(Name);
-				/*for (FPackItmeStruct PackDataListItem : Component->PackDataList)
-				{
-					if (PackDataListItem.Name==name)
-					{
-						Component->PackDataList.RemoveAt(0);
-						Component->PackDataList.RemoveAt(Component->PackDataList.);
-						Component->PackDataList.Insert(FPackItmeStruct(PackDataListItem.ItemClass,PackDataListItem.Numbers++,PackDataListItem.Name),Component->PackDataList.Find(PackDataListItem));
-						return;
-					}
-				}*/
-
+				
 				for (int i = 0;i<CastChecked<UPacksackComponent>(Controller->GetPawn()->GetComponentByClass(UPacksackComponent::StaticClass()))->PackDataList.Num();i++)
 				{
 					if (CastChecked<UPacksackComponent>(Controller->GetPawn()->GetComponentByClass(UPacksackComponent::StaticClass()))->PackDataList.IsValidIndex(i))

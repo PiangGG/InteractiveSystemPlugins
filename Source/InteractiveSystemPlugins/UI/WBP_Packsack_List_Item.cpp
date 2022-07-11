@@ -21,12 +21,12 @@ void UWBP_Packsack_List_Item::PostInitProperties()
 
 void UWBP_Packsack_List_Item::UpdataUI_Implementation(UPacksackComponent* PacksackComponent)
 {
-	Object = GetListItem<UPacksack_List_Item_Object>();
+	/*Object = GetListItem<UPacksack_List_Item_Object>();
 	if (!Object)return;
 	
 	PackItmeStruct = Object->PackItme;
 	auto Item= Cast<AItem>(PackItmeStruct.ItemClass);
-	Image_Bg->SetToolTipText(FText::FromString(Item->Data->Describe));
+	Image_Bg->SetToolTipText(FText::FromString(Item->Data->Describe));*/
 }
 
 void UWBP_Packsack_List_Item::OnCreationFromPalette()

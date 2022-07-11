@@ -103,7 +103,7 @@ public:
 	
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-
+	TArray<AActor*>& GetOverlapStorageBox();
 public:	
 	
 	
@@ -145,6 +145,9 @@ private:
 	class UUserWidget* PackWidget;
 	
 	FTimerHandle TimerHandle_UpdatePack;
+
+	UPROPERTY()
+	TArray<AActor*> OverlapStorageBox;
 };
 
 

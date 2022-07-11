@@ -14,7 +14,7 @@ TArray<FPackItmeStruct> UStorageDataList::GetStorageDataList_Implementation()
 {
 	if (CastChecked<AStorageBox>(theOwner))
 	{
-		return CastChecked<AStorageBox>(theOwner)->StorageComponent->StorageDataList;
+		return CastChecked<AStorageBox>(theOwner)->StorageComponent->Data;
 	}
 	if (CastChecked<APawn>(theOwner))
 	{
@@ -44,6 +44,26 @@ void UStorageDataList::UpdataUIData_Implementation(TArray<FPackItmeStruct>& Stor
 		UPacksack_List_Item_Object *Object = NewObject<UPacksack_List_Item_Object>();
 		Object->SetPackItme(Itme);
 		GetListView()->AddItem(Object);
+	}
+}
+
+
+void UStorageDataList::UIUpdata(TArray<FPackItmeStruct> Data)
+{
+	
+	if (!GetListView())return;
+	
+	GetListView()->ClearListItems();
+	GetListView()->ClearSelection();
+	
+	for (auto Itme :  Data)
+	{
+		UPacksack_List_Item_Object *Object = NewObject<UPacksack_List_Item_Object>();
+		if(Object)
+		{
+			Object->SetPackItme(Itme);
+			GetListView()->AddItem(Object);
+		}
 	}
 }
 

@@ -25,4 +25,14 @@ class INTERACTIVESYSTEMPLUGINS_API IObjectPacksackInterface
 public:
 	UFUNCTION(BlueprintNativeEvent,BlueprintCallable)
 	FPackItmeStruct GetObjectData(UObject*Object);
+
+	UFUNCTION(BlueprintNativeEvent,BlueprintCallable)
+	TArray<FPackItmeStruct> GetObjectDatas(UObject*Object);
+
+	UFUNCTION(BlueprintNativeEvent,BlueprintCallable)
+	void SetEntryWidget(UUserWidget* UserWidget);
+
+	UFUNCTION(BlueprintNativeEvent,BlueprintCallable)
+	UUserWidget* GetEntryWidget();
+
 };

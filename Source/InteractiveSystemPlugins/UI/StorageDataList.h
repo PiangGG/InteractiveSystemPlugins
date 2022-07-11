@@ -13,7 +13,7 @@
  * 
  */
 UCLASS()
-class INTERACTIVESYSTEMPLUGINS_API UStorageDataList : public UUserWidget,public IUIPacksackInterface
+class INTERACTIVESYSTEMPLUGINS_API UStorageDataList : public UUserWidget,public IUIPacksackInterface,public IUserObjectListEntry
 {
 	GENERATED_BODY()
 public:
@@ -23,7 +23,11 @@ public:
 
 	virtual AActor* GetWidgetOwner_Implementation() override;
 
+	UFUNCTION()
 	virtual void UpdataUIData_Implementation(TArray<FPackItmeStruct>& StorageDataList) override;
+
+	UFUNCTION(BlueprintCallable)
+	void UIUpdata(TArray<FPackItmeStruct> Data);
 	
 	virtual void NativeConstruct() override;
 

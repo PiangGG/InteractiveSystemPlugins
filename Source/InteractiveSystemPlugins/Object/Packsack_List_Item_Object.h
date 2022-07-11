@@ -28,7 +28,9 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	void SetPackItme(FPackItmeStruct &PackItmeStruct);
-
+	
+	void SetPackItmeData(FPackItmeStruct PackItmeStruct);
+	
 	UFUNCTION(BlueprintCallable)
 	virtual FPackItmeStruct GetObjectData_Implementation(UObject* Object) override;
 

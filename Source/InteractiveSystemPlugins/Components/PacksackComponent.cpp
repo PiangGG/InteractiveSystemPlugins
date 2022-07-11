@@ -3,11 +3,14 @@
 
 #include "PacksackComponent.h"
 
+#include "StorageComponent.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/SphereComponent.h"
 #include "GameFramework/Character.h"
 #include "InteractiveSystemPlugins/Actor/Item.h"
+#include "InteractiveSystemPlugins/Actor/StorageBox.h"
 #include "InteractiveSystemPlugins/Interface/ActorPacksackInterface.h"
+#include "InteractiveSystemPlugins/Object/StorageListItemObject.h"
 #include "InteractiveSystemPlugins/UI/WBP_Packsack_Main.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -433,6 +436,10 @@ void UPacksackComponent::OnSphereComponentBeginOverlap(UPrimitiveComponent* Over
 	{
 		Cast<AItem>(OtherActor)->Show(CastChecked<APawn>(GetOwner()));
 	}
+	if (UpdatePackUI.IsBound())
+	{
+		UpdatePackUI.Broadcast();
+	}
 }
 
 void UPacksackComponent::OnSphereComponentEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
@@ -442,6 +449,11 @@ void UPacksackComponent::OnSphereComponentEndOverlap(UPrimitiveComponent* Overla
 	if (Cast<AItem>(OtherActor))
 	{
 		Cast<AItem>(OtherActor)->Hide(CastChecked<APawn>(GetOwner()));
+	}
+
+	if (UpdatePackUI.IsBound())
+	{
+		UpdatePackUI.Broadcast();
 	}
 }
 
@@ -541,5 +553,15 @@ void UPacksackComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAc
 
 	//tick 目标 Actor
 	SetTargetPackActorTip();
+}
+
+TArray<AActor*>& UPacksackComponent::GetOverlapStorageBox()
+{
+	if (SphereComponent)
+	{
+		SphereComponent->GetOverlappingActors(OverlapStorageBox,AStorageBox::StaticClass());
+		return OverlapStorageBox;
+	}
+	return OverlapStorageBox;
 }
 

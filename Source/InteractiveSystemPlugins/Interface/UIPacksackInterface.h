@@ -30,6 +30,10 @@ public:
 
 	UFUNCTION(BlueprintNativeEvent,BlueprintCallable)
 	void UpdataUIData(TArray<FPackItmeStruct> &StorageDataList);
+
+
+	UFUNCTION(BlueprintNativeEvent,BlueprintCallable)
+	void UpdataStorageListData(TArray<AActor*> &StorageList);
 	
 	UFUNCTION(BlueprintNativeEvent,BlueprintCallable)
 	FPackItmeStruct GetPackItmeStruct();

@@ -3,6 +3,7 @@
 
 #include "WBP_Packsack_Main.h"
 
+#include "Storage_List.h"
 #include "Components/ListView.h"
 #include "Components/SpinBox.h"
 #include "InteractiveSystemPlugins/Object/Packsack_List_Item_Object.h"
@@ -82,6 +83,14 @@ void UWBP_Packsack_Main::UpdataUI_Implementation(UPacksackComponent* PacksackCom
 		if (UIPacksackInterface)
 		{
 			UIPacksackInterface->Execute_UpdataUIData(StorageDataList,PacksackComponent->PackDataList);
+		}
+	}
+	if (StorageList)
+	{
+		IUIPacksackInterface*UIPacksackInterface = CastChecked<IUIPacksackInterface>(StorageList);
+		if (UIPacksackInterface)
+		{
+			UIPacksackInterface->Execute_UpdataStorageListData(StorageList,PacksackComponent->GetOverlapStorageBox());
 		}
 	}
 }

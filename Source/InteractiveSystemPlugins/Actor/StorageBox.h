@@ -25,4 +25,10 @@ public:
 
 public:
 	virtual void Pack_Implementation(AController* Controller) override;
+
+	bool GetIsOpen();
+
+	void SetOpen(bool bopen);
+private:
+	bool bIsOpen = false;;
 };

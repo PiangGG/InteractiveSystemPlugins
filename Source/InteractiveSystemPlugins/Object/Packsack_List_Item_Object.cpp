@@ -26,6 +26,11 @@ void UPacksack_List_Item_Object::SetPackItme(FPackItmeStruct& PackItmeStruct)
 	PackItme = PackItmeStruct;
 }
 
+void UPacksack_List_Item_Object::SetPackItmeData(FPackItmeStruct PackItmeStruct)
+{
+	PackItme = PackItmeStruct;
+}
+
 FPackItmeStruct UPacksack_List_Item_Object::GetObjectData_Implementation(UObject* Object)
 {
 	

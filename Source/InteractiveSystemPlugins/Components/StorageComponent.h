@@ -27,6 +27,14 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	void InitData(TArray<FPackItmeStruct>& ata);
+
+	UStorageDataList* GetStorageDatasWBP(APlayerController* PlayerController);
+
+	void  UpdataStorageDatasWBP(APlayerController* PlayerController);
+	
+	void AddDataItem(FPackItmeStruct& Item);
+
+	void ReMoveDataItem(FPackItmeStruct& Item);
 public:
 	UPROPERTY(Replicated,BlueprintReadWrite,EditAnywhere)
 	TArray<FPackItmeStruct> Data;

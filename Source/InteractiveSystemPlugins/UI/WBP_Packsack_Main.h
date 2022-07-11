@@ -40,6 +40,10 @@ public:
 	UPROPERTY(BlueprintReadWrite,EditAnywhere,meta=(BindWidget))
 	class UWBP_Pack_RemoveBox*RemoveBox;
 
+	UPROPERTY(BlueprintReadWrite,EditAnywhere,meta=(BindWidget))
+	class UStorage_List*StorageList;
+	//TArray<UStorageDataList>&UStorageDataArray;
+	
 private:
 	
 public:

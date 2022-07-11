@@ -4,6 +4,8 @@
 #include "StorageBox.h"
 
 #include "InteractiveSystemPlugins/Components/StorageComponent.h"
+#include "InteractiveSystemPlugins/Interface/UIPacksackInterface.h"
+#include "InteractiveSystemPlugins/UI/StorageDataList.h"
 
 AStorageBox::AStorageBox()
 {
@@ -15,10 +17,25 @@ void AStorageBox::Pack_Implementation(AController* Controller)
 	UE_LOG(LogTemp,Warning,TEXT("AStorageBox::Pack_Implementation"));
 	
 	if (!Controller)return;
-
-	if (StorageComponent)
-	{
-		StorageComponent->StorageDataList;
-	}
 	
+	SetOpen(!bIsOpen);
+
+	if (GetIsOpen())
+	{
+		
+		if (CastChecked<UPacksackComponent>(CastChecked<APlayerController>(Controller)->GetPawn()->GetComponentByClass(UPacksackComponent::StaticClass()))->UpdatePackUI.IsBound())
+		{
+			CastChecked<UPacksackComponent>(CastChecked<APlayerController>(Controller)->GetPawn()->GetComponentByClass(UPacksackComponent::StaticClass()))->UpdatePackUI.Broadcast();
+		}
+	}
+}
+
+bool AStorageBox::GetIsOpen()
+{
+	return bIsOpen;
+}
+
+void AStorageBox::SetOpen(bool bopen)
+{
+	bIsOpen = bopen;
 }

@@ -29,11 +29,6 @@ void UWBP_Packsack_List_Item::UpdataUI_Implementation(UPacksackComponent* Packsa
 	Image_Bg->SetToolTipText(FText::FromString(Item->Data->Describe));*/
 }
 
-void UWBP_Packsack_List_Item::OnCreationFromPalette()
-{
-	Super::OnCreationFromPalette();
-	
-}
 
 void UWBP_Packsack_List_Item::NativeConstruct()
 {

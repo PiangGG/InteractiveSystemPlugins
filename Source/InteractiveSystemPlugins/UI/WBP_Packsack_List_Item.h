@@ -22,9 +22,6 @@ public:
 	
 	virtual void UpdataUI_Implementation(UPacksackComponent* PacksackComponent) override;
 
-	virtual void OnCreationFromPalette() override;
-
-
 	virtual void NativeConstruct() override;
 
 	virtual FPackItmeStruct GetPackItmeStruct_Implementation() override;

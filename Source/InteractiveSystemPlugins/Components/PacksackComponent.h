@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "InteractiveSystemPlugins/Data/PackItem.h"
-#include "InteractiveSystemPlugins/UI/WBP_Pack_RemoveItem_Box.h"
+#include "InteractiveSystemPlugins/Interface/ObjectPacksackInterface.h"
 #include "Net/UnrealNetwork.h"
 #include "PacksackComponent.generated.h"
 
@@ -18,7 +18,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FUpdatePackUI);
 DECLARE_DYNAMIC_DELEGATE_TwoParams(FSelectedOption,bool,bSelectedOption,const FPackItmeStruct&,packItmeStruct);
 class UWBP_Packsack_Main;
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class INTERACTIVESYSTEMPLUGINS_API UPacksackComponent : public UActorComponent
+class INTERACTIVESYSTEMPLUGINS_API UPacksackComponent : public UActorComponent,public IObjectPacksackInterface
 {
 	GENERATED_BODY()
 
@@ -52,7 +52,8 @@ protected:
 	void PickServer();
 	UFUNCTION(NetMulticast,Reliable)
 	void PickNetMulticast();
-
+	
+	
 	
 public:
 	UFUNCTION()
@@ -85,7 +86,9 @@ public:
 	void ThrowOut(const FPackItmeStruct &packItmeStruct);
 	UFUNCTION(Server,WithValidation,Reliable)
 	void ThrowOut_Server(const FPackItmeStruct &packItmeStruct);
-
+	
+	UFUNCTION()
+	void Picks(const FPackItmeStruct& packItmeStruct);
 	/*
 	 * 拥有者是否为Pawn
 	 */
@@ -104,6 +107,16 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	TArray<AActor*>& GetOverlapStorageBox();
+
+	virtual TArray<FPackItmeStruct> GetDatas_Implementation() override;
+
+	virtual void UpdataData_Implementation(int Index) override;
+
+	virtual void ReMoveItem_Implementation(const FPackItmeStruct& packItmeStruct) override;
+
+	virtual void AddItem_Implementation(const FPackItmeStruct& packItmeStruct) override;
+
+	virtual void UnReMoveItem_Implementation(const FPackItmeStruct& packItmeStruct) override;
 public:	
 	
 	

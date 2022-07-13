@@ -45,3 +45,34 @@ UUserWidget* UStorageListItemObject::GetEntryWidget_Implementation()
 	return userwidget;
 }
 
+void UStorageListItemObject::SetWidgetOwner_Implementation(AActor* actor)
+{
+	IUIPacksackInterface::SetWidgetOwner_Implementation(actor);
+	StorageActor = actor;
+}
+
+AActor* UStorageListItemObject::GetWidgetOwner_Implementation()
+{
+	if (StorageActor)
+	{
+		return StorageActor;
+	}
+	return IUIPacksackInterface::GetWidgetOwner_Implementation();
+}
+
+void UStorageListItemObject::SetParentWidget_Implementation(UUserWidget* parent)
+{
+	IUIPacksackInterface::SetParentWidget_Implementation(parent);
+	
+}
+
+UUserWidget* UStorageListItemObject::GetParentWidget_Implementation()
+{
+	return IUIPacksackInterface::GetParentWidget_Implementation();
+}
+
+FPackItmeStruct UStorageListItemObject::GetPackItmeStruct_Implementation()
+{
+	return IUIPacksackInterface::GetPackItmeStruct_Implementation();
+}
+

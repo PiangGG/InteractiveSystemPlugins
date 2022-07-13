@@ -26,7 +26,9 @@ public:
 	void Pack(AController* Controller);
 	UFUNCTION(BlueprintNativeEvent,BlueprintCallable)
 	void TipActor(AController* Controller,bool bTip,int Value);
-	
+
+	UFUNCTION(BlueprintNativeEvent,BlueprintCallable)
+	TArray<struct FPackItmeStruct> GetActorDatas();
 	/*UFUNCTION(BlueprintNativeEvent)
 	AActor* Pack();*/
 };

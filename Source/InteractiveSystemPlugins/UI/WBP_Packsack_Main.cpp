@@ -4,9 +4,10 @@
 #include "WBP_Packsack_Main.h"
 
 #include "Storage_List.h"
+#include "WBP_Pack_RemoveBox.h"
+#include "WBP_Pack_RemoveItem_Box.h"
 #include "Components/ListView.h"
 #include "Components/SpinBox.h"
-#include "InteractiveSystemPlugins/Object/Packsack_List_Item_Object.h"
 
 bool UWBP_Packsack_Main::Initialize()
 {
@@ -21,20 +22,16 @@ void UWBP_Packsack_Main::NativeConstruct()
 {
 	Super::NativeConstruct();
 
+	if (!WidgetOnwenr)return;
+	
 	if (RemoveItemBox)
 	{
 		RemoveItemBox->SetVisibility(ESlateVisibility::Hidden);
-	}
-	
-	if (!GetWidgetOwner_Implementation())return;
-
-	if (RemoveItemBox)
-	{
 		IUIPacksackInterface *UIPacksackInterface = CastChecked<IUIPacksackInterface>(RemoveItemBox);
 		if (UIPacksackInterface)
 		{
-			UIPacksackInterface->SetWidgetOwner(GetWidgetOwner_Implementation());
-			UIPacksackInterface->Execute_SetParentWidget(this);
+			UIPacksackInterface->Execute_SetWidgetOwner(RemoveItemBox,WidgetOnwenr);
+			UIPacksackInterface->Execute_SetParentWidget(RemoveItemBox,this);
 		}
 	}
 	
@@ -43,8 +40,11 @@ void UWBP_Packsack_Main::NativeConstruct()
 		IUIPacksackInterface *UIPacksackInterface = CastChecked<IUIPacksackInterface>(StorageDataList);
 		if (UIPacksackInterface)
 		{
-			UIPacksackInterface->SetWidgetOwner(GetWidgetOwner_Implementation());
-			UIPacksackInterface->Execute_SetParentWidget(this);
+			
+			AActor* Actor = UIPacksackInterface->Execute_GetWidgetOwner(this);
+			
+			UIPacksackInterface->Execute_SetWidgetOwner(StorageDataList,WidgetOnwenr);
+			UIPacksackInterface->Execute_SetParentWidget(StorageDataList,this);
 		}
 	}
 
@@ -53,8 +53,8 @@ void UWBP_Packsack_Main::NativeConstruct()
 		IUIPacksackInterface *UIPacksackInterface = CastChecked<IUIPacksackInterface>(RemoveBox);
 		if (UIPacksackInterface)
 		{
-			UIPacksackInterface->SetWidgetOwner(GetWidgetOwner_Implementation());
-			UIPacksackInterface->Execute_SetParentWidget(this);
+			UIPacksackInterface->Execute_SetWidgetOwner(RemoveBox,WidgetOnwenr);
+			UIPacksackInterface->Execute_SetParentWidget(RemoveBox,this);
 		}
 	}
 }
@@ -106,8 +106,17 @@ TArray<FPackItmeStruct> UWBP_Packsack_Main::GetStorageDataList_Implementation()
 
 AActor* UWBP_Packsack_Main::GetWidgetOwner_Implementation()
 {
-	
+	if (WidgetOnwenr)
+	{
+		return WidgetOnwenr;
+	}
 	return IUIPacksackInterface::GetWidgetOwner_Implementation();
+}
+
+void UWBP_Packsack_Main::SetWidgetOwner_Implementation(AActor* actor)
+{
+	IUIPacksackInterface::SetWidgetOwner_Implementation(actor);
+	WidgetOnwenr = actor;
 }
 
 void UWBP_Packsack_Main::ShowRemoveItemBox(UPacksackComponent*PacksackComponent,const FPackItmeStruct& packItmeStruct)

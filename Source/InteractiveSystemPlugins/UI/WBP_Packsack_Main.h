@@ -4,10 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "StorageDataList.h"
-#include "WBP_Packsack_List_Item.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/CanvasPanel.h"
-#include "InteractiveSystemPlugins/Data/PackListType.h"
 #include "InteractiveSystemPlugins/Interface/UIPacksackInterface.h"
 #include "WBP_Packsack_Main.generated.h"
 
@@ -45,7 +43,8 @@ public:
 	//TArray<UStorageDataList>&UStorageDataArray;
 	
 private:
-	
+	UPROPERTY()
+	AActor*WidgetOnwenr;
 public:
 	virtual bool Initialize() override;
 	virtual void NativeConstruct() override;
@@ -64,7 +63,8 @@ public:
 	
 	UFUNCTION()
 	virtual AActor* GetWidgetOwner_Implementation() override;
-	
+
+	virtual void SetWidgetOwner_Implementation(AActor* actor) override;
 	UPROPERTY()
 	APlayerController* PlayerController;
 

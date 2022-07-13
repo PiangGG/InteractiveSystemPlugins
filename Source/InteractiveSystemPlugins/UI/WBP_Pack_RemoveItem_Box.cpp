@@ -6,9 +6,7 @@
 #include "Components/Button.h"
 #include "Components/Image.h"
 #include "Components/Overlay.h"
-#include "Components/SizeBox.h"
 #include "Components/SpinBox.h"
-#include "Components/TextBlock.h"
 #include "InteractiveSystemPlugins/Components/PacksackComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 
@@ -45,6 +43,21 @@ void UWBP_Pack_RemoveItem_Box::NativeConstruct()
 	{
 		TextBlock_False->SetText(FText::FromString("取消"));
 	}*/
+}
+
+UUserWidget* UWBP_Pack_RemoveItem_Box::GetParentWidget_Implementation()
+{
+	if (Parent)
+	{
+		return Parent;
+	}
+	return IUIPacksackInterface::GetParentWidget_Implementation();
+}
+
+void UWBP_Pack_RemoveItem_Box::SetParentWidget_Implementation(UUserWidget* parent)
+{
+	IUIPacksackInterface::SetParentWidget_Implementation(parent);
+	Parent = parent;
 }
 
 void UWBP_Pack_RemoveItem_Box::SetParent(UUserWidget* parent)

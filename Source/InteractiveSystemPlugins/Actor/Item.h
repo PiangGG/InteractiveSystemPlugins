@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "InteractiveSystemPlugins/Data/PackItemData.h"
 #include "InteractiveSystemPlugins/Interface/ActorPacksackInterface.h"
 #include "Item.generated.h"
 
@@ -59,10 +58,10 @@ public:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Data",meta=(DisplayName="Item命名"))
 	FString Name = "Cube";
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Data",meta=(DisplayName="Item列表"))
-	UDataTable * DT;
+	class UDataTable * DT;
 	
 	//UPROPERTY()
-	FPackItmeDataStruct* Data;
+	struct FPackItmeDataStruct* Data;
 	
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Compment",meta=(DisplayName="Root"))
 	class USceneComponent *SceneComponent;

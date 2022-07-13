@@ -4,11 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataTable.h"
-#include "InteractiveSystemPlugins/Actor/Item.h"
 #include "PackItem.generated.h"
 /**
  * 
  */
+class AItem;
 USTRUCT(BlueprintType)
 struct FPackItmeStruct:public FTableRowBase
 {
@@ -16,15 +16,21 @@ struct FPackItmeStruct:public FTableRowBase
 
 public:
 	UPROPERTY(BlueprintReadWrite,EditAnywhere,Category="FPackItmeStruct",meta=(DisplayName="保存类"))
-	TSubclassOf<AItem> ItemClass;
+	TSubclassOf<class AItem> ItemClass;
 	UPROPERTY(BlueprintReadWrite,EditAnywhere,Category="FPackItmeStruct",meta=(DisplayName="数量"))
-	int Numbers;
+	int Numbers = 1;
 	UPROPERTY(BlueprintReadWrite,EditAnywhere,Category="FPackItmeStruct",meta=(DisplayName="命名"))
-	FName Name;
-	
+	FName Name = "Cube";
+
 	FPackItmeStruct()
 	{
-		ItemClass = AItem::StaticClass();
+		ItemClass = AActor::StaticClass();
+		Numbers = 1;
+		Name = "Cube";
+	}
+	FPackItmeStruct(TSubclassOf<AItem> Class)
+	{
+		ItemClass = Class;
 		Numbers = 1;
 		Name = "NewKey";
 	}

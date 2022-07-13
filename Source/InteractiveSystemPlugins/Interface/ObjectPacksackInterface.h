@@ -30,9 +30,26 @@ public:
 	TArray<FPackItmeStruct> GetObjectDatas(UObject*Object);
 
 	UFUNCTION(BlueprintNativeEvent,BlueprintCallable)
+	TArray<FPackItmeStruct> GetDatas();
+	
+	UFUNCTION(BlueprintNativeEvent,BlueprintCallable)
 	void SetEntryWidget(UUserWidget* UserWidget);
 
 	UFUNCTION(BlueprintNativeEvent,BlueprintCallable)
 	UUserWidget* GetEntryWidget();
 
+	UFUNCTION(BlueprintNativeEvent,BlueprintCallable)
+	void UpdataData(int Index);
+
+	UFUNCTION(BlueprintNativeEvent,BlueprintCallable)
+	void ReMoveItem(const FPackItmeStruct& packItmeStruct);
+
+	UFUNCTION(BlueprintNativeEvent,BlueprintCallable)
+	void AddItem(const FPackItmeStruct& packItmeStruct);
+	
+	UFUNCTION(BlueprintNativeEvent,BlueprintCallable)
+	void UnReMoveItem(const FPackItmeStruct& packItmeStruct);
+
+	
+	
 };

@@ -8,6 +8,7 @@
 #include "Components/NamedSlot.h"
 #include "InteractiveSystemPlugins/Actor/StorageBox.h"
 #include "InteractiveSystemPlugins/Components/StorageComponent.h"
+#include "InteractiveSystemPlugins/Object/PackItemDragDropOperation.h"
 #include "InteractiveSystemPlugins/Object/Packsack_List_Item_Object.h"
 
 TArray<FPackItmeStruct> UStorageDataList::GetStorageDataList_Implementation()
@@ -31,6 +32,28 @@ AActor* UStorageDataList::GetWidgetOwner_Implementation()
 	return theOwner;
 }
 
+void UStorageDataList::SetWidgetOwner_Implementation(AActor* actor)
+{
+	IUIPacksackInterface::SetWidgetOwner_Implementation(actor);
+	theOwner = actor;
+}
+
+void UStorageDataList::SetParentWidget_Implementation(UUserWidget* parent)
+{
+	IUIPacksackInterface::SetParentWidget_Implementation(parent);
+	
+	Parent = parent;
+}
+
+UUserWidget* UStorageDataList::GetParentWidget_Implementation()
+{
+	if (Parent)
+	{
+		return Parent;
+	}
+	return IUIPacksackInterface::GetParentWidget_Implementation();
+}
+
 void UStorageDataList::UpdataUIData_Implementation(TArray<FPackItmeStruct>& StorageDataList)
 {
 	IUIPacksackInterface::UpdataUIData_Implementation(StorageDataList);
@@ -42,6 +65,14 @@ void UStorageDataList::UpdataUIData_Implementation(TArray<FPackItmeStruct>& Stor
 	for (auto Itme : StorageDataList)
 	{
 		UPacksack_List_Item_Object *Object = NewObject<UPacksack_List_Item_Object>();
+
+		IUIPacksackInterface * UIPacksackInterface = CastChecked<IUIPacksackInterface>(Object);
+		IUIPacksackInterface * UIPacksackInterface2 = CastChecked<IUIPacksackInterface>(this);
+		if (UIPacksackInterface&&UIPacksackInterface2)
+		{
+			UIPacksackInterface->Execute_SetWidgetOwner(Object,UIPacksackInterface2->Execute_GetWidgetOwner(this));
+			UIPacksackInterface->Execute_SetParentWidget(Object,this);
+		}
 		Object->SetPackItme(Itme);
 		GetListView()->AddItem(Object);
 	}
@@ -61,6 +92,13 @@ void UStorageDataList::UIUpdata(TArray<FPackItmeStruct> Data)
 		UPacksack_List_Item_Object *Object = NewObject<UPacksack_List_Item_Object>();
 		if(Object)
 		{
+			IUIPacksackInterface * UIPacksackInterface = CastChecked<IUIPacksackInterface>(Object);
+			IUIPacksackInterface * UIPacksackInterface2 = CastChecked<IUIPacksackInterface>(this);
+			if (UIPacksackInterface&&UIPacksackInterface2)
+			{
+				UIPacksackInterface->Execute_SetWidgetOwner(Object,UIPacksackInterface2->Execute_GetWidgetOwner(this));
+				UIPacksackInterface->Execute_SetParentWidget(Object,this);
+			}
 			Object->SetPackItme(Itme);
 			GetListView()->AddItem(Object);
 		}
@@ -108,4 +146,62 @@ UListView* UStorageDataList::GetListView()
 	default:
 		return nullptr;
 	}
+}
+
+bool UStorageDataList::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent,
+	UDragDropOperation* InOperation)
+{
+	UPackItemDragDropOperation *DragDropOperation = Cast<UPackItemDragDropOperation>(InOperation);
+
+	if (InOperation)
+	{
+		UWBP_Packsack_List_Item* DragShowUI =CastChecked<UWBP_Packsack_List_Item>(InOperation->Payload);
+		
+		if (DragShowUI)
+		{
+			IUIPacksackInterface *UIPacksackInterface = Cast<IUIPacksackInterface>(DragShowUI);
+			IUIPacksackInterface *UIPacksackInterface2 = Cast<IUIPacksackInterface>(CastChecked<UWBP_Packsack_List_Item>(InOperation->Payload));
+			if (UIPacksackInterface&&UIPacksackInterface2)
+			{
+				//if (UIPacksackInterface->Execute_GetParentWidget(DragShowUI)==UIPacksackInterface2->Execute_GetParentWidget(CastChecked<UWBP_Packsack_List_Item>(InOperation->Payload)))return false;
+				
+				FPackItmeStruct PackItmeStruct =  UIPacksackInterface->Execute_GetPackItmeStruct(DragShowUI);
+				AActor* Actor = Execute_GetWidgetOwner(this);
+				if (Actor)
+				{
+					/*APawn * Pawn = CastChecked<APawn>(Actor);
+					if (Pawn)
+					{
+						if (CastChecked<UPacksackComponent>(CastChecked<APawn>(Pawn)->GetComponentByClass(UPacksackComponent::StaticClass())))
+						{
+							CastChecked<UPacksackComponent>(CastChecked<APawn>(Pawn)->GetComponentByClass(UPacksackComponent::StaticClass()))->Picks(PackItmeStruct);
+							return true;
+						}
+						
+					}
+					
+					AStorageBox * StorageBox = CastChecked<AStorageBox>(Actor);
+					if (StorageBox)
+					{
+						IObjectPacksackInterface*ObjectPacksackInterface = CastChecked<IObjectPacksackInterface>()
+						CastChecked<UStorageComponent>(CastChecked<AStorageBox>(StorageBox)->GetComponentByClass(UStorageComponent::StaticClass()));
+						
+						return true;
+					}*/
+					TArray<UActorComponent*>Components = Actor->GetComponentsByInterface(UObjectPacksackInterface::StaticClass());
+		
+					if (Components.IsValidIndex(0))
+					{
+						IObjectPacksackInterface*ObjectPacksackInterface = CastChecked<IObjectPacksackInterface>(Components[0]);
+						
+						if (ObjectPacksackInterface)
+						{
+							ObjectPacksackInterface->Execute_UnReMoveItem(Components[0],PackItmeStruct);
+						}
+					}
+				}
+			}
+		}
+	}
+	return Super::NativeOnDrop(InGeometry, InDragDropEvent, DragDropOperation);
 }

@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "InteractiveSystemPlugins/Data/PackItem.h"
+#include "InteractiveSystemPlugins/Interface/UIPacksackInterface.h"
 #include "WBP_Pack_RemoveItem_Box.generated.h"
 
 /**
@@ -13,11 +14,15 @@
 
 DECLARE_DYNAMIC_DELEGATE_RetVal(bool,FReturnSelectBool);
 UCLASS()
-class INTERACTIVESYSTEMPLUGINS_API UWBP_Pack_RemoveItem_Box : public UUserWidget
+class INTERACTIVESYSTEMPLUGINS_API UWBP_Pack_RemoveItem_Box : public UUserWidget,public IUIPacksackInterface
 {
 	GENERATED_BODY()
 public:
 	virtual void NativeConstruct() override;
+
+	virtual UUserWidget* GetParentWidget_Implementation() override;
+	
+	virtual void SetParentWidget_Implementation(UUserWidget* parent) override;
 	
 public:
 	UPROPERTY(BlueprintReadWrite,EditAnywhere,Category="RemoveItem_Box",meta=(BindWidget))
@@ -49,12 +54,12 @@ public:
 	UPROPERTY()
 	int RemoveNumber = 1;
 
-	void SetParent(UUserWidget* parent);
-
 	FPackItmeStruct PackItmeStruct;
 	
 	FPackItmeStruct& packItmeStruct = PackItmeStruct;
+public:
 	
+	void SetParent(UUserWidget* parent);
 protected:
 	UFUNCTION()
 	void OnClickTrue();

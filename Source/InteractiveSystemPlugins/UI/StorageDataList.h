@@ -23,6 +23,12 @@ public:
 
 	virtual AActor* GetWidgetOwner_Implementation() override;
 
+	virtual void SetWidgetOwner_Implementation(AActor* actor) override;
+
+	virtual void SetParentWidget_Implementation(UUserWidget* parent) override;
+
+	virtual UUserWidget* GetParentWidget_Implementation() override;
+	
 	UFUNCTION()
 	virtual void UpdataUIData_Implementation(TArray<FPackItmeStruct>& StorageDataList) override;
 
@@ -33,6 +39,8 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	class UListView *GetListView();
+
+	virtual bool NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation) override;
 public:
 	/**
 	 * List
@@ -52,6 +60,8 @@ public:
 private:
 	UPROPERTY()
 	AActor* theOwner;
-
+	
+	UPROPERTY()
+	UUserWidget* Parent;
 	
 };

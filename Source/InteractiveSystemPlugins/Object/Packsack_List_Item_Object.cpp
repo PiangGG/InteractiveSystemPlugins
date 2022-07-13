@@ -46,3 +46,38 @@ void UPacksack_List_Item_Object::SetParent(UUserWidget* parent)
 {
 	Parent = parent;
 }
+
+void UPacksack_List_Item_Object::SetWidgetOwner_Implementation(AActor* actor)
+{
+	IUIPacksackInterface::SetWidgetOwner_Implementation(actor);
+	OwnerActor = actor;
+}
+
+AActor* UPacksack_List_Item_Object::GetWidgetOwner_Implementation()
+{
+	if (OwnerActor)
+	{
+		return  OwnerActor;
+	}
+	return IUIPacksackInterface::GetWidgetOwner_Implementation();
+}
+
+void UPacksack_List_Item_Object::SetParentWidget_Implementation(UUserWidget* parent)
+{
+	IUIPacksackInterface::SetParentWidget_Implementation(parent);
+	Parent = parent;
+}
+
+UUserWidget* UPacksack_List_Item_Object::GetParentWidget_Implementation()
+{
+	if (Parent)
+	{
+		return  Parent;
+	}
+	return IUIPacksackInterface::GetParentWidget_Implementation();
+}
+
+FPackItmeStruct UPacksack_List_Item_Object::GetPackItmeStruct_Implementation()
+{
+	return PackItme;
+}

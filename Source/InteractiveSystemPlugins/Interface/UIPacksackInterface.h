@@ -51,5 +51,5 @@ public:
 	UUserWidget* GetParentWidget();
 	
 	UFUNCTION(BlueprintNativeEvent,BlueprintCallable)
-	void SetParentWidget();
+	void SetParentWidget(UUserWidget * parent);
 };

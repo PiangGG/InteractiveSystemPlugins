@@ -26,9 +26,15 @@ public:
 public:
 	virtual void Pack_Implementation(AController* Controller) override;
 
+	virtual void Pack_Server() override;
+
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	
 	bool GetIsOpen();
 
 	void SetOpen(bool bopen);
+	
 private:
+	UPROPERTY(Replicated)
 	bool bIsOpen = false;;
 };

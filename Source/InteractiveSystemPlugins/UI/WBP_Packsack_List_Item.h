@@ -28,13 +28,26 @@ public:
 	virtual void NativeConstruct() override;
 
 	virtual FPackItmeStruct GetPackItmeStruct_Implementation() override;
+
+	virtual AActor* GetWidgetOwner_Implementation() override;
+
+	virtual void SetWidgetOwner_Implementation(AActor* actor) override;
+
+	virtual void SetParentWidget_Implementation(UUserWidget* parent) override;
+
+	virtual UUserWidget* GetParentWidget_Implementation() override;
 	/**
 	 * 拖拽UI事件
 	 */
 	virtual FReply NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
 	virtual void NativeOnDragDetected(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent, UDragDropOperation*& OutOperation) override;
+	
 	virtual bool NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation) override;
 
+	virtual void NativeOnDragLeave(const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation) override;
+	
+	virtual void NativeOnDragCancelled(const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation) override;
+	
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 public:
 	UPROPERTY(Replicated,BlueprintReadWrite,EditAnywhere,Category="Data")
@@ -59,4 +72,11 @@ public:
 	float Width = 100.0f;
 	UPROPERTY(BlueprintReadWrite,EditAnywhere,Category="Data",meta=(BindWidget))
 	float Height = 100.0f;
+
+private:
+	UPROPERTY()
+	AActor*Owner;
+
+	UPROPERTY()
+	UUserWidget* Parent;
 };

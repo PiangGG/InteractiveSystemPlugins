@@ -30,6 +30,17 @@ void AStorageBox::Pack_Implementation(AController* Controller)
 	}
 }
 
+void AStorageBox::Pack_Server()
+{
+	Super::Pack_Server();
+}
+
+void AStorageBox::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(AStorageBox,bIsOpen);
+}
+
 bool AStorageBox::GetIsOpen()
 {
 	return bIsOpen;

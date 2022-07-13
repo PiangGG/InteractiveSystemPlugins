@@ -5,12 +5,13 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "InteractiveSystemPlugins/Data/PackItem.h"
+#include "InteractiveSystemPlugins/Interface/ObjectPacksackInterface.h"
 #include "StorageComponent.generated.h"
 
 
 class UStorageDataList;
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class INTERACTIVESYSTEMPLUGINS_API UStorageComponent : public UActorComponent
+class INTERACTIVESYSTEMPLUGINS_API UStorageComponent : public UActorComponent,public IObjectPacksackInterface
 {
 	GENERATED_BODY()
 
@@ -31,10 +32,19 @@ public:
 	UStorageDataList* GetStorageDatasWBP(APlayerController* PlayerController);
 
 	void  UpdataStorageDatasWBP(APlayerController* PlayerController);
-	
-	void AddDataItem(FPackItmeStruct& Item);
 
-	void ReMoveDataItem(FPackItmeStruct& Item);
+	virtual TArray<FPackItmeStruct> GetDatas_Implementation() override;
+
+	UFUNCTION()
+	void ThrowOut(const FPackItmeStruct &packItmeStruct);
+	UFUNCTION(Server,WithValidation,Reliable)
+	void ThrowOut_Server(const FPackItmeStruct &packItmeStruct);
+	
+	virtual void UpdataData_Implementation(int Index) override;
+
+	virtual void ReMoveItem_Implementation(const FPackItmeStruct& packItmeStruct) override;
+
+	virtual void AddItem_Implementation(const FPackItmeStruct& packItmeStruct) override;
 public:
 	UPROPERTY(Replicated,BlueprintReadWrite,EditAnywhere)
 	TArray<FPackItmeStruct> Data;
@@ -44,5 +54,6 @@ public:
 	
 	UPROPERTY(BlueprintReadWrite,EditAnywhere,meta=(BindWidget))
 	class UStorageDataList*StorageDataList;
-	
+
+
 };

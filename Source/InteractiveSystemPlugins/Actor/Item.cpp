@@ -6,6 +6,7 @@
 #include "Components/SphereComponent.h"
 #include "Components/WidgetComponent.h"
 #include "InteractiveSystemPlugins/Components/PacksackComponent.h"
+#include "InteractiveSystemPlugins/Data/PackItemData.h"
 #include "Kismet/GameplayStatics.h"
 
 // Sets default values

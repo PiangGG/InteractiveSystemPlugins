@@ -11,10 +11,11 @@
 #include "InteractiveSystemPlugins/Actor/StorageBox.h"
 #include "InteractiveSystemPlugins/Interface/ActorPacksackInterface.h"
 #include "InteractiveSystemPlugins/Object/StorageListItemObject.h"
+#include "InteractiveSystemPlugins/Subsystem/InteractiveSubsystem.h"
 #include "InteractiveSystemPlugins/UI/WBP_Packsack_Main.h"
+#include "InteractiveSystemPlugins/UI/WBP_Pack_RemoveItem_Box.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
-#include "Kismet/KismetSystemLibrary.h"
 #include "Net/UnrealNetwork.h"
 
 UPacksackComponent::UPacksackComponent()
@@ -191,7 +192,7 @@ void UPacksackComponent::UnPickShowSelected(const FPackItmeStruct& packItmeStruc
 {
 	if (packItmeStruct.Numbers<=1)
 	{
-		UnPick(packItmeStruct);
+		ThrowOut(packItmeStruct);
 		if (UpdatePackUI.IsBound())
 		{
 			UpdatePackUI.Broadcast();
@@ -209,7 +210,7 @@ void UPacksackComponent::UnPickShowSelected(const FPackItmeStruct& packItmeStruc
 		}
 		else
 		{
-			UnPick(packItmeStruct);
+			ThrowOut(packItmeStruct);
 			if (UpdatePackUI.IsBound())
 			{
 				UpdatePackUI.Broadcast();
@@ -223,12 +224,20 @@ void UPacksackComponent::UnPickOptionSeleted(bool OptionSeleted,FPackItmeStruct&
 {
 	if (OptionSeleted&&CastChecked<UWBP_Packsack_Main>(PackWidget)->RemoveItemBox)
 	{
+		int Numbers = packItmeStruct.Numbers;
+		
 		packItmeStruct.Numbers = CastChecked<UWBP_Packsack_Main>(PackWidget)->RemoveItemBox->RemoveNumber;
-		UnPick(packItmeStruct);
+		
+		Numbers -= packItmeStruct.Numbers;
+		if (Numbers>0)
+		{
+			PackDataList.Add(FPackItmeStruct(packItmeStruct.ItemClass,Numbers,packItmeStruct.Name));
+		}
+		ThrowOut(packItmeStruct);
 	}
 	else
 	{
-		UnPick(packItmeStruct);
+		ThrowOut(packItmeStruct);
 	}
 	if (UpdatePackUI.IsBound())
 	{
@@ -287,21 +296,20 @@ void UPacksackComponent::ThrowOut(const FPackItmeStruct &packItmeStruct)
 	ThrowOut_Server(packItmeStruct);
 }
 
-
 void UPacksackComponent::ThrowOut_Server_Implementation(const FPackItmeStruct &packItmeStruct)
 {
 	if (GetOwner())
 	{
-		for (int i = 0;i<PackItmeStruct->Numbers;i++)
+		for (int i = 0;i<packItmeStruct.Numbers;i++)
 		{
 			FActorSpawnParameters ActorSpawnParameters;
 			ActorSpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
-			auto* Item = GetWorld()->SpawnActor<AItem>(PackItmeStruct->ItemClass,GetOwner()->GetActorLocation(),GetOwner()->GetActorRotation(),ActorSpawnParameters);
+			auto* Item = GetWorld()->SpawnActor<AItem>(packItmeStruct.ItemClass,GetOwner()->GetActorLocation(),GetOwner()->GetActorRotation(),ActorSpawnParameters);
 
 			if (Item)
 			{
-				Item->Name = PackItmeStruct->Name.ToString();
-				CastChecked<AItem>(Item)->Init(PackItmeStruct->Name);
+				Item->Name = packItmeStruct.Name.ToString();
+				CastChecked<AItem>(Item)->Init(packItmeStruct.Name);
 			}
 		}
 	}
@@ -312,6 +320,46 @@ bool UPacksackComponent::ThrowOut_Server_Validate(const FPackItmeStruct &packItm
 	return  true;
 }
 
+
+void UPacksackComponent::Picks(const FPackItmeStruct& packItmeStruct)
+{
+
+	FPackItmeDataStruct* Data = UGameplayStatics::GetGameInstance(GetWorld())->GetSubsystem<UInteractiveSubsystem>()->GetStructData(packItmeStruct);
+	if (!Data)return;
+	
+	if (Data->bRepeat)
+	{
+		for (auto Itme : PackDataList)
+		{
+			if (Itme.Name == packItmeStruct.Name)
+			{
+				Itme.Numbers+=packItmeStruct.Numbers;
+				
+				if (UpdatePackUI.IsBound())
+				{
+					UpdatePackUI.Broadcast();
+				}
+				return;
+			}
+		}
+		PackDataList.Add(packItmeStruct);
+		if (UpdatePackUI.IsBound())
+		{
+			UpdatePackUI.Broadcast();
+		}
+		return;
+	}
+	else
+	{
+		PackDataList.Add(packItmeStruct);
+		if (UpdatePackUI.IsBound())
+		{
+			UpdatePackUI.Broadcast();
+		}
+		return;
+	}
+	
+}
 
 void UPacksackComponent::OpenPick()
 {
@@ -327,13 +375,13 @@ void UPacksackComponent::OpenPick()
 				PackWidget = CreateWidget<UUserWidget>(CastChecked<APlayerController>(CastChecked<APawn>(Owner)->GetController()),WBP_Packsack_Main);
 				if (PackWidget)
 				{
-					PackWidget->AddToViewport();
-					
 					IUIPacksackInterface*UIPacksackInterfac = CastChecked<IUIPacksackInterface>(PackWidget);
 					if (UIPacksackInterfac)
 					{
 						UIPacksackInterfac->Execute_SetWidgetOwner(PackWidget,Owner);
 					}
+					PackWidget->AddToViewport();
+					
 					if (UpdatePackUI.IsBound())
 					{
 						UpdatePackUI.Broadcast();
@@ -563,5 +611,46 @@ TArray<AActor*>& UPacksackComponent::GetOverlapStorageBox()
 		return OverlapStorageBox;
 	}
 	return OverlapStorageBox;
+}
+
+TArray<FPackItmeStruct> UPacksackComponent::GetDatas_Implementation()
+{
+	return PackDataList;
+}
+
+void UPacksackComponent::UpdataData_Implementation(int Index)
+{
+	IObjectPacksackInterface::UpdataData_Implementation(Index);
+	
+	if (PackDataList.IsValidIndex(Index))
+	{
+		PackDataList.RemoveAt(Index);
+	}
+	
+}
+
+void UPacksackComponent::ReMoveItem_Implementation(const FPackItmeStruct& packItmeStruct)
+{
+	IObjectPacksackInterface::ReMoveItem_Implementation(packItmeStruct);
+
+	UnPickShowSelected(packItmeStruct);
+	//ThrowOut(packItmeStruct);
+}
+
+void UPacksackComponent::AddItem_Implementation(const FPackItmeStruct& packItmeStruct)
+{
+	IObjectPacksackInterface::AddItem_Implementation(packItmeStruct);
+
+	if (true)
+	{
+		
+	}
+}
+
+void UPacksackComponent::UnReMoveItem_Implementation(const FPackItmeStruct& packItmeStruct)
+{
+	IObjectPacksackInterface::UnReMoveItem_Implementation(packItmeStruct);
+	
+	PackDataList.Add(packItmeStruct);
 }
 

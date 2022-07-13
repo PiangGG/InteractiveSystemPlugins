@@ -22,9 +22,7 @@ UPacksackComponent::UPacksackComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
 
-	SetIsReplicated(true);
-	
-	
+	//SetIsReplicated(true);
 }
 
 void UPacksackComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

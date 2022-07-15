@@ -14,7 +14,7 @@ UStorageComponent::UStorageComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
 	
-	SetIsReplicated(true);
+	//SetIsReplicated(true);
 }
 
 

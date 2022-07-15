@@ -22,7 +22,6 @@ UPacksackComponent::UPacksackComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
 
-	//SetIsReplicated(true);
 }
 
 void UPacksackComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -68,13 +67,6 @@ void UPacksackComponent::InitSphereComponent()
 		}
 	}
 }
-
-void UPacksackComponent::PostInitProperties()
-{
-	Super::PostInitProperties();
-	
-}
-
 
 void UPacksackComponent::BeginPlay()
 {
@@ -395,8 +387,6 @@ void UPacksackComponent::OpenPick()
 		
 		if (!CastChecked<APawn>(Owner)->GetController())return;
 		CastChecked<APlayerController>(CastChecked<APawn>(Owner)->GetController())->bShowMouseCursor = false;
-		
-		//UpdatePick_TimerEnd();
 	}
 }
 
@@ -419,7 +409,6 @@ void UPacksackComponent::UpdatePick()
 			UpdatePick_TimerEnd();
 		}
 	}
-	//UpdatePick_Server();
 }
 
 void UPacksackComponent::UpdatePick_Server_Implementation()
@@ -477,7 +466,6 @@ bool UPacksackComponent::GetOwberisPawn()
 void UPacksackComponent::OnSphereComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	UE_LOG(LogTemp,Warning,TEXT("OnSphereComponentBeginOverlap:%s"),*OtherActor->GetName());
 	if (Cast<AItem>(OtherActor))
 	{
 		Cast<AItem>(OtherActor)->Show(CastChecked<APawn>(GetOwner()));
@@ -491,7 +479,6 @@ void UPacksackComponent::OnSphereComponentBeginOverlap(UPrimitiveComponent* Over
 void UPacksackComponent::OnSphereComponentEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	UE_LOG(LogTemp,Warning,TEXT("OnSphereComponentEndOverlap:%s"),*OtherActor->GetName());
 	if (Cast<AItem>(OtherActor))
 	{
 		Cast<AItem>(OtherActor)->Hide(CastChecked<APawn>(GetOwner()));
@@ -582,14 +569,6 @@ void UPacksackComponent::SetTargetPackActorTip()
 			}
 		}
 	}
-	/*if (CurrentTargetPackActor)
-	{
-		UE_LOG(LogTemp,Warning,TEXT("CurrentTargetPackActor:%s"),*CurrentTargetPackActor->GetName());
-	}
-	if (LastTargetPackActor)
-	{
-		UE_LOG(LogTemp,Warning,TEXT("CurrentTargetPackActor:%s"),*LastTargetPackActor->GetName());
-	}*/
 }
 
 
@@ -624,7 +603,6 @@ void UPacksackComponent::UpdataData_Implementation(int Index)
 	{
 		PackDataList.RemoveAt(Index);
 	}
-	
 }
 
 void UPacksackComponent::ReMoveItem_Implementation(const FPackItmeStruct& packItmeStruct)
@@ -632,17 +610,13 @@ void UPacksackComponent::ReMoveItem_Implementation(const FPackItmeStruct& packIt
 	IObjectPacksackInterface::ReMoveItem_Implementation(packItmeStruct);
 
 	UnPickShowSelected(packItmeStruct);
-	//ThrowOut(packItmeStruct);
 }
 
 void UPacksackComponent::AddItem_Implementation(const FPackItmeStruct& packItmeStruct)
 {
 	IObjectPacksackInterface::AddItem_Implementation(packItmeStruct);
 
-	if (true)
-	{
-		
-	}
+	
 }
 
 void UPacksackComponent::UnReMoveItem_Implementation(const FPackItmeStruct& packItmeStruct)

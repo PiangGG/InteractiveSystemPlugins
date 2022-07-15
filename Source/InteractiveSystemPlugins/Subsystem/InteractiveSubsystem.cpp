@@ -8,7 +8,7 @@
 
 UInteractiveSubsystem::UInteractiveSubsystem()
 {
-	static ConstructorHelpers::FObjectFinder<UDataTable> ItemList(TEXT("DataTable'/InteractiveSystemPlugins/PacItemkList/DT_PackItemList.DT_PackItemList'"));
+	static ConstructorHelpers::FObjectFinder<UDataTable> ItemList(TEXT("DataTable'/Game/BP/PacItemkList/DT_PackItemList.DT_PackItemList'"));
 	DT = ItemList.Object;
 	
 }

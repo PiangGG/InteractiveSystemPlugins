@@ -25,9 +25,7 @@ class INTERACTIVESYSTEMPLUGINS_API UPacksackComponent : public UActorComponent,p
 public:	
 	
 	UPacksackComponent();
-	
-	void PostInitProperties() override;
-	
+
 	//实例化背包数据
 	void InitPacksackData(TArray<FPackItmeStruct> &PackDataArray);
 

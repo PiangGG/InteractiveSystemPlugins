@@ -6,7 +6,9 @@
 #include "Components/Button.h"
 #include "Components/Image.h"
 #include "Components/Overlay.h"
+#include "Components/SizeBox.h"
 #include "Components/SpinBox.h"
+#include "Components/TextBlock.h"
 #include "InteractiveSystemPlugins/Components/PacksackComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 
@@ -16,15 +18,15 @@ void UWBP_Pack_RemoveItem_Box::NativeConstruct()
 
 	if (Button_true)
 	{
-		Button_true->SetStyle(ButtonStyle);
+		//Button_true->SetStyle(ButtonStyle);
 		Button_true->OnClicked.AddDynamic(this,&ThisClass::OnClickTrue);
 	}
 	if (Button_false)
 	{
-		Button_false->SetStyle(ButtonStyle);
+		//Button_false->SetStyle(ButtonStyle);
 		Button_false->OnClicked.AddDynamic(this,&ThisClass::OnClickFalse);
 	}
-	/*if (SizeBox&&Image_Bg&&Overlay)
+		/*if (SizeBox&&Image_Bg&&Overlay)
 	{
 		
 		SizeBox->AddChild(Overlay);
@@ -67,7 +69,6 @@ void UWBP_Pack_RemoveItem_Box::SetParent(UUserWidget* parent)
 
 void UWBP_Pack_RemoveItem_Box::OnClickTrue()
 {
-	UE_LOG(LogTemp,Warning,TEXT("OnClickTrue"));
 	OnClickOption = true;
 	if (SpinBox)
 	{
@@ -90,7 +91,6 @@ void UWBP_Pack_RemoveItem_Box::OnClickTrue()
 
 void UWBP_Pack_RemoveItem_Box::OnClickFalse()
 {
-	UE_LOG(LogTemp,Warning,TEXT("OnClickFalse"));
 	OnClickOption = false;
 	APawn *Pawn = GetGameInstance()->GetFirstLocalPlayerController()->GetPawn();
 	if (Pawn)

@@ -10,6 +10,7 @@
 void UWBP_Pack_RemoveBox::NativeConstruct()
 {
 	Super::NativeConstruct();
+	
 	if (TextBlock)
 	{
 		TextBlock->SetVisibility(ESlateVisibility::Hidden);
@@ -105,5 +106,6 @@ UUserWidget* UWBP_Pack_RemoveBox::GetParentWidget_Implementation()
 void UWBP_Pack_RemoveBox::SetParentWidget_Implementation(UUserWidget* parent)
 {
 	IUIPacksackInterface::SetParentWidget_Implementation(parent);
+	
 	Parent = parent;
 }

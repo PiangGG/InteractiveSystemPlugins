@@ -141,3 +141,16 @@ void UWBP_Packsack_Main::HideRemoveItemBox(UPacksackComponent* PacksackComponent
 		RemoveItemBox->SetVisibility(ESlateVisibility::Hidden);
 	}
 }
+
+void UWBP_Packsack_Main::MainClose()
+{
+	if (RemoveItemBox)
+	{
+		if (RemoveItemBox->GetVisibility()==ESlateVisibility::Visible)
+		{
+			
+			RemoveItemBox->OnClickTrue();
+		}
+		
+	}
+}

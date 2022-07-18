@@ -60,7 +60,7 @@ public:
 public:
 	
 	void SetParent(UUserWidget* parent);
-protected:
+//protected:
 	UFUNCTION()
 	void OnClickTrue();
 	UFUNCTION()

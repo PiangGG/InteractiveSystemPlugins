@@ -222,12 +222,16 @@ void UPacksackComponent::UnPickOptionSeleted(bool OptionSeleted,FPackItmeStruct&
 		if (Numbers>0)
 		{
 			PackDataList.Add(FPackItmeStruct(packItmeStruct.ItemClass,Numbers,packItmeStruct.Name));
+			ThrowOut(FPackItmeStruct(packItmeStruct.ItemClass,packItmeStruct.Numbers,packItmeStruct.Name));
+		}else
+		{
+			ThrowOut(FPackItmeStruct(packItmeStruct.ItemClass,packItmeStruct.Numbers+Numbers,packItmeStruct.Name));
 		}
-		ThrowOut(packItmeStruct);
+		
 	}
 	else
 	{
-		ThrowOut(packItmeStruct);
+		PackDataList.Add(FPackItmeStruct(packItmeStruct.ItemClass,packItmeStruct.Numbers,packItmeStruct.Name));
 	}
 	if (UpdatePackUI.IsBound())
 	{
@@ -382,6 +386,10 @@ void UPacksackComponent::OpenPick()
 	}
 	else
 	{
+		if (CastChecked<UWBP_Packsack_Main>(PackWidget))
+		{
+			CastChecked<UWBP_Packsack_Main>(PackWidget)->MainClose();
+		}
 		PackWidget->RemoveFromViewport();
 		PackWidget = nullptr;
 		

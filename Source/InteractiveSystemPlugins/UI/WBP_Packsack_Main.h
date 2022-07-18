@@ -71,4 +71,6 @@ public:
 	void ShowRemoveItemBox(UPacksackComponent*PacksackComponent, const FPackItmeStruct& packItmeStruct);
 	
 	void HideRemoveItemBox(UPacksackComponent*PacksackComponent);
+
+	void  MainClose();
 };

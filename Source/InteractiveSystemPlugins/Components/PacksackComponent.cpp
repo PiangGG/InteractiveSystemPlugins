@@ -624,13 +624,30 @@ void UPacksackComponent::AddItem_Implementation(const FPackItmeStruct& packItmeS
 {
 	IObjectPacksackInterface::AddItem_Implementation(packItmeStruct);
 
-	
+	for (int i = 0 ;i<PackDataList.Num();i++)
+	{
+		if (PackDataList[i].Name==packItmeStruct.Name)
+		{
+			PackDataList[i].Numbers+=packItmeStruct.Numbers;
+			return;
+		}
+	}
+	PackDataList.Add(FPackItmeStruct(packItmeStruct));
 }
 
 void UPacksackComponent::UnReMoveItem_Implementation(const FPackItmeStruct& packItmeStruct)
 {
 	IObjectPacksackInterface::UnReMoveItem_Implementation(packItmeStruct);
-	
-	PackDataList.Add(packItmeStruct);
+
+	IObjectPacksackInterface*ObjectPacksackInterface = CastChecked<IObjectPacksackInterface>(this);
+	if (ObjectPacksackInterface)
+	{
+		ObjectPacksackInterface->Execute_AddItem(this,packItmeStruct);
+	}
+
+	if (UpdatePackUI.IsBound())
+	{
+		UpdatePackUI.Broadcast();
+	}
 }
 

@@ -2,7 +2,6 @@
 
 
 #include "StorageDataList.h"
-
 #include "PackListView.h"
 #include "PackTileView.h"
 #include "Components/NamedSlot.h"
@@ -160,34 +159,13 @@ bool UStorageDataList::NativeOnDrop(const FGeometry& InGeometry, const FDragDrop
 		if (DragShowUI)
 		{
 			IUIPacksackInterface *UIPacksackInterface = Cast<IUIPacksackInterface>(DragShowUI);
-			IUIPacksackInterface *UIPacksackInterface2 = Cast<IUIPacksackInterface>(CastChecked<UWBP_Packsack_List_Item>(InOperation->Payload));
+			IUIPacksackInterface *UIPacksackInterface2= Cast<IUIPacksackInterface>(this);
 			if (UIPacksackInterface&&UIPacksackInterface2)
 			{
-				//if (UIPacksackInterface->Execute_GetParentWidget(DragShowUI)==UIPacksackInterface2->Execute_GetParentWidget(CastChecked<UWBP_Packsack_List_Item>(InOperation->Payload)))return false;
-				
 				FPackItmeStruct PackItmeStruct =  UIPacksackInterface->Execute_GetPackItmeStruct(DragShowUI);
-				AActor* Actor = Execute_GetWidgetOwner(this);
+				AActor* Actor = UIPacksackInterface2->Execute_GetWidgetOwner(this);
 				if (Actor)
 				{
-					/*APawn * Pawn = CastChecked<APawn>(Actor);
-					if (Pawn)
-					{
-						if (CastChecked<UPacksackComponent>(CastChecked<APawn>(Pawn)->GetComponentByClass(UPacksackComponent::StaticClass())))
-						{
-							CastChecked<UPacksackComponent>(CastChecked<APawn>(Pawn)->GetComponentByClass(UPacksackComponent::StaticClass()))->Picks(PackItmeStruct);
-							return true;
-						}
-						
-					}
-					
-					AStorageBox * StorageBox = CastChecked<AStorageBox>(Actor);
-					if (StorageBox)
-					{
-						IObjectPacksackInterface*ObjectPacksackInterface = CastChecked<IObjectPacksackInterface>()
-						CastChecked<UStorageComponent>(CastChecked<AStorageBox>(StorageBox)->GetComponentByClass(UStorageComponent::StaticClass()));
-						
-						return true;
-					}*/
 					TArray<UActorComponent*>Components = Actor->GetComponentsByInterface(UObjectPacksackInterface::StaticClass());
 		
 					if (Components.IsValidIndex(0))

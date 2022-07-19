@@ -41,10 +41,30 @@ public:
 	void ThrowOut_Server(const FPackItmeStruct &packItmeStruct);
 	
 	virtual void UpdataData_Implementation(int Index) override;
-
+	UFUNCTION(Server,Reliable)
+	virtual void UpdataDataServer(int Index);
+	UFUNCTION(NetMulticast,Reliable)
+	virtual void UpdataDataNetMulticast(int Index);
+	
 	virtual void ReMoveItem_Implementation(const FPackItmeStruct& packItmeStruct) override;
-
+	UFUNCTION(Server,Reliable)
+	virtual void ReMoveItemServer(const FPackItmeStruct& packItmeStruct);
+	UFUNCTION(NetMulticast,Reliable)
+	virtual void ReMoveItemNetMulticast(const FPackItmeStruct& packItmeStruct);
+	
+	virtual void UnReMoveItem_Implementation(const FPackItmeStruct& packItmeStruct) override;
+	UFUNCTION(Server,Reliable,WithValidation)
+	virtual void UnReMoveItemServer(const FPackItmeStruct& packItmeStruct);
+	UFUNCTION(NetMulticast,Reliable)
+	virtual void UnReMoveItemNetMulticast(const FPackItmeStruct& packItmeStruct);
+	
 	virtual void AddItem_Implementation(const FPackItmeStruct& packItmeStruct) override;
+	UFUNCTION(Server,Reliable)
+	virtual void AddItemServer(const FPackItmeStruct& packItmeStruct);
+	UFUNCTION(NetMulticast,Reliable)
+	virtual void AddItemNetMulticast(const FPackItmeStruct& packItmeStruct);
+
+	
 public:
 	UPROPERTY(Replicated,BlueprintReadWrite,EditAnywhere)
 	TArray<FPackItmeStruct> Data;
@@ -57,3 +77,4 @@ public:
 
 
 };
+

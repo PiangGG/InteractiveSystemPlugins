@@ -36,6 +36,7 @@ AItem::AItem()
 	WidgetComponent->SetIsReplicated(false);
 
 	bReplicates = true;
+	SetReplicateMovement(true);
 }
 
 // Called when the game starts or when spawned

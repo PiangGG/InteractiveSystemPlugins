@@ -36,7 +36,6 @@ public:
 	virtual TArray<class AActor*> GetAllOverlapActors();
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-
 	
 protected:
 	virtual void BeginPlay() override;
@@ -113,6 +112,7 @@ public:
 	virtual void ReMoveItem_Implementation(const FPackItmeStruct& packItmeStruct) override;
 
 	virtual void AddItem_Implementation(const FPackItmeStruct& packItmeStruct) override;
+
 
 	virtual void UnReMoveItem_Implementation(const FPackItmeStruct& packItmeStruct) override;
 public:	

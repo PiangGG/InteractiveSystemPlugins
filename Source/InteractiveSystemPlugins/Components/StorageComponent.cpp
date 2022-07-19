@@ -88,7 +88,7 @@ void UStorageComponent::ThrowOut(const FPackItmeStruct& packItmeStruct)
 
 void UStorageComponent::ThrowOut_Server_Implementation(const FPackItmeStruct& packItmeStruct)
 {
-	if (GetOwner())
+	if (GetOwner()->GetLocalRole()==ROLE_Authority)
 	{
 		for (int i = 0;i<packItmeStruct.Numbers;i++)
 		{
@@ -113,26 +113,104 @@ bool UStorageComponent::ThrowOut_Server_Validate(const FPackItmeStruct& packItme
 void UStorageComponent::UpdataData_Implementation(int Index)
 {
 	IObjectPacksackInterface::UpdataData_Implementation(Index);
+	
+	UpdataDataServer(Index);
+}
 
-	IObjectPacksackInterface*ObjectPacksackInterface = CastChecked<IObjectPacksackInterface>(UGameplayStatics::GetGameInstance(this)->GetFirstLocalPlayerController()->GetPawn()->GetComponentByClass(UPacksackComponent::StaticClass()));
+void UStorageComponent::UpdataDataServer_Implementation(int Index)
+{
+	UpdataDataNetMulticast(Index);
+}
 
-	if (ObjectPacksackInterface)
+void UStorageComponent::UpdataDataNetMulticast_Implementation(int Index)
+{
+	if (Data.IsValidIndex(Index))
 	{
-		ObjectPacksackInterface->Execute_UpdataData(UGameplayStatics::GetGameInstance(this)->GetFirstLocalPlayerController()->GetPawn()->GetComponentByClass(UPacksackComponent::StaticClass()),Index);
+		Data.RemoveAt(Index);
 	}
-	//CastChecked<UPacksackComponent>(UGameplayStatics::GetGameInstance(this)->GetFirstLocalPlayerController()->GetPawn()->GetComponentByClass(UPacksackComponent::StaticClass()));
+	if (CastChecked<UPacksackComponent>(GetWorld()->GetFirstLocalPlayerFromController()->GetPlayerController(GetWorld())->GetPawn()->GetComponentByClass(UPacksackComponent::StaticClass())))
+	{
+		if (CastChecked<UPacksackComponent>(GetWorld()->GetFirstLocalPlayerFromController()->GetPlayerController(GetWorld())->GetPawn()->GetComponentByClass(UPacksackComponent::StaticClass()))->UpdatePackUI.IsBound())
+		{
+			CastChecked<UPacksackComponent>(GetWorld()->GetFirstLocalPlayerFromController()->GetPlayerController(GetWorld())->GetPawn()->GetComponentByClass(UPacksackComponent::StaticClass()))->UpdatePackUI.Broadcast();
+		}
+	}
 }
 
 void UStorageComponent::ReMoveItem_Implementation(const FPackItmeStruct& packItmeStruct)
 {
 	IObjectPacksackInterface::ReMoveItem_Implementation(packItmeStruct);
 
+	ReMoveItemServer(packItmeStruct);
+}
+
+void UStorageComponent::ReMoveItemServer_Implementation(const FPackItmeStruct& packItmeStruct)
+{
+	ReMoveItemNetMulticast(packItmeStruct);
+}
+
+void UStorageComponent::ReMoveItemNetMulticast_Implementation(const FPackItmeStruct& packItmeStruct)
+{
 	ThrowOut(packItmeStruct);
+}
+
+void UStorageComponent::UnReMoveItem_Implementation(const FPackItmeStruct& packItmeStruct)
+{
+	IObjectPacksackInterface::UnReMoveItem_Implementation(packItmeStruct);
+
+	UnReMoveItemServer(packItmeStruct);
+}
+
+bool UStorageComponent::UnReMoveItemServer_Validate(const FPackItmeStruct& packItmeStruct)
+{
+	return true;
+}
+
+void UStorageComponent::UnReMoveItemServer_Implementation(const FPackItmeStruct& packItmeStruct)
+{
+	UnReMoveItemNetMulticast(packItmeStruct);
+}
+
+
+void UStorageComponent::UnReMoveItemNetMulticast_Implementation(const FPackItmeStruct& packItmeStruct)
+{
+	IObjectPacksackInterface*ObjectPacksackInterface = CastChecked<IObjectPacksackInterface>(this);
+	
+	if (ObjectPacksackInterface&&GetWorld()->GetFirstPlayerController()->IsLocalController())
+	{
+		ObjectPacksackInterface->Execute_AddItem(this,packItmeStruct);
+	}
+	
+	if (CastChecked<UPacksackComponent>(GetWorld()->GetFirstLocalPlayerFromController()->GetPlayerController(GetWorld())->GetPawn()->GetComponentByClass(UPacksackComponent::StaticClass())))
+	{
+		if (CastChecked<UPacksackComponent>(GetWorld()->GetFirstLocalPlayerFromController()->GetPlayerController(GetWorld())->GetPawn()->GetComponentByClass(UPacksackComponent::StaticClass()))->UpdatePackUI.IsBound())
+		{
+			CastChecked<UPacksackComponent>(GetWorld()->GetFirstLocalPlayerFromController()->GetPlayerController(GetWorld())->GetPawn()->GetComponentByClass(UPacksackComponent::StaticClass()))->UpdatePackUI.Broadcast();
+		}
+	}
 }
 
 void UStorageComponent::AddItem_Implementation(const FPackItmeStruct& packItmeStruct)
 {
 	IObjectPacksackInterface::AddItem_Implementation(packItmeStruct);
-	//Data
+	
+	AddItemServer(packItmeStruct);
 }
 
+void UStorageComponent::AddItemServer_Implementation(const FPackItmeStruct& packItmeStruct)
+{
+	AddItemNetMulticast(packItmeStruct);
+}
+
+void UStorageComponent::AddItemNetMulticast_Implementation(const FPackItmeStruct& packItmeStruct)
+{
+	for (int i = 0 ;i<Data.Num();i++)
+	{
+		if (Data[i].Name==packItmeStruct.Name)
+		{
+			Data[i].Numbers+=packItmeStruct.Numbers;
+			return;
+		}
+	}
+	Data.Add(FPackItmeStruct(packItmeStruct));
+}
